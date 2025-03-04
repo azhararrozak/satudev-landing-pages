@@ -99,10 +99,10 @@ export default function Header() {
         <div className="md:hidden fixed inset-0 z-50 bg-white dark:bg-slate-900">
           <div className="flex justify-end p-4">
             <Button variant="ghost" size="icon" onClick={() => setIsMenuOpen(false)}>
-              <X className="h-6 w-6" />
+              <Menu className="h-6 w-6" />
             </Button>
           </div>
-          <nav className="flex flex-col items-center space-y-8 p-8">
+          <nav className="flex flex-col items-center space-y-8 p-8 bg-white dark:bg-slate-900">
             <Link
               href="#services"
               className="text-lg font-medium text-slate-700 hover:text-primary dark:text-slate-200 dark:hover:text-primary"
