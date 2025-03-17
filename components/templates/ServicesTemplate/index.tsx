@@ -1,5 +1,5 @@
-import Card from "@/components/organisms/Card";
-import services from "@/data/Services";
+import Card from "@/components/organisms/CardServices";
+import services from "@/data/ServicesData";
 
 export default function ServicesTemplate() {
   return (
@@ -7,7 +7,7 @@ export default function ServicesTemplate() {
     id="services"
     className="w-full bg-white py-12 md:py-24 lg-py-32 bg-muted//50 dark:bg-slate-900 dark:text-white"
   >
-    <div className="w-full px-4 md:px-6 border">
+    <div className="w-full px-4 md:px-6">
       <div className="flex flex-col items-center justify-center space-y-4 text-center">
         <div className="space-y-2">
           <div className="inline-block rounded-lg bg-purple-600 text-white font-bold dark:bg-blue-300 px-3 py-1 text-sm  light:text-black">

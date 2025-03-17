@@ -1,7 +1,7 @@
 import Image from 'next/image'
 import { Button } from '@/components/ui/button'
 
-export default function index() {
+export default function HeroTemplate() {
   return (
     <section className="w-full py-12 md:py-24 lg:py-32 xl:py-48 bg-gradient-to-r from-primary/10 via-primary/5 to-background">
       <div className="px-4 md:px-6">

@@ -10,7 +10,7 @@ interface CardProps {
   className?: string;
 }
 
-export default function Card({
+export default function CardServices({
   title,
   description,
   icon,
