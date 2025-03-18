@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Moon, Sun, Menu } from "lucide-react";
+import Image from "next/image";
 
 export default function Header() {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -41,6 +42,9 @@ export default function Header() {
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex h-16 items-center justify-between">
           <div className="flex items-center">
+            <div>
+            <Image src="/SatuDev.png" className="px-2" alt="SatuDev" width={60} height={60} />
+            </div>
             <Link href="/" className="flex items-center space-x-2">
               <span className="text-xl font-bold bg-gradient-to-r from-primary to-purple-600 bg-clip-text text-transparent">
                 SatuDev

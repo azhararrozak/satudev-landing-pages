@@ -1,4 +1,6 @@
+import Footer from "@/components/organisms/Footer";
 import Header from "@/components/organisms/Header";
+import AboutTemplate from "@/components/templates/AboutTemplate";
 import HeroTemplate from "@/components/templates/HeroTemplate";
 import PortofolioTemplate from "@/components/templates/PortofolioTemplate";
 import ServiceTemplate from "@/components/templates/ServicesTemplate";
@@ -10,7 +12,8 @@ export default function Home() {
       <HeroTemplate />
       <ServiceTemplate />
       <PortofolioTemplate />
-      
+      <AboutTemplate />
+      <Footer />
     </main>
   );
 }
