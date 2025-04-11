@@ -14,7 +14,7 @@ export default function PortofolioTemplate() {
     { id: "software", label: "Custom Software" },
   ];
 
-  const [projectsList, setProjectsList] = useState(projects);
+  const [projectsList] = useState(projects);
 
   return (
     <section id="portfolio" className="w-full py-12 md:py-24 lg:py-32">

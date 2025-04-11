@@ -14,7 +14,7 @@ export default function ContactTemplate() {
                 <div className="inline-block rounded-lg bg-purple-600 font-bold dark:bg-blue-300 px-3 py-1 text-sm text-primary-foreground">
                   Get in Touch
                 </div>
-                <h2 className="text-3xl font-bold tracking-tighter md:text-4xl/tight">Let's Discuss Your Project</h2>
+                <h2 className="text-3xl font-bold tracking-tighter md:text-4xl/tight">{`Let's Discuss Your Project`}</h2>
                 <p className="max-w-[900px] text-muted-foreground md:text-xl/relaxed">
                   Have a question or ready to start your next project? Reach out to us.
                 </p>
