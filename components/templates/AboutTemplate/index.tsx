@@ -21,7 +21,7 @@ export default function AboutTemplate() {
                 </div>
                 <div className="space-y-4">
                   <p className="text-muted-foreground">
-                    Founded in 2018, TechSolutions has grown from a small startup to a trusted software development
+                    Founded in 2024, SatuDev Solution has grown from a small startup to a trusted software development
                     partner for businesses of all sizes. Our mission is to help organizations leverage technology to
                     achieve their goals and stay ahead in the digital landscape.
                   </p>
@@ -32,15 +32,15 @@ export default function AboutTemplate() {
                 </div>
                 <div className="flex gap-4">
                   <div className="text-center">
-                    <h3 className="text-3xl font-bold">50+</h3>
+                    <h3 className="text-3xl font-bold">10+</h3>
                     <p className="text-sm text-muted-foreground">Projects Completed</p>
                   </div>
-                  <div className="text-center">
+                  {/* <div className="text-center">
                     <h3 className="text-3xl font-bold">20+</h3>
                     <p className="text-sm text-muted-foreground">Team Members</p>
-                  </div>
+                  </div> */}
                   <div className="text-center">
-                    <h3 className="text-3xl font-bold">15+</h3>
+                    <h3 className="text-3xl font-bold">3</h3>
                     <p className="text-sm text-muted-foreground">Countries Served</p>
                   </div>
                 </div>

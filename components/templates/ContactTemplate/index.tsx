@@ -1,9 +1,7 @@
 import React from 'react'
-import { Textarea } from '@/components/ui/textarea'
-import { Input } from '@/components/ui/input'
-import { Button } from '@/components/ui/button'
-import { Mail, Phone, MapPin, Github, Twitter, Linkedin, Instagram } from 'lucide-react'
+import { Mail, Phone, MapPin, Github, Linkedin, Instagram } from 'lucide-react'
 import Link from 'next/link'
+import FormContact from '@/components/organisms/FormContact'
 
 export default function ContactTemplate() {
   return (
@@ -28,7 +26,7 @@ export default function ContactTemplate() {
                   </div>
                   <div>
                     <h3 className="font-bold">Email</h3>
-                    <p className="text-muted-foreground">info@techsolutions.com</p>
+                    <p className="text-muted-foreground">satudev.solution@gmail.com</p>
                   </div>
                 </div>
                 <div className="flex items-start gap-4">
@@ -37,7 +35,7 @@ export default function ContactTemplate() {
                   </div>
                   <div>
                     <h3 className="font-bold">Phone</h3>
-                    <p className="text-muted-foreground">+1 (555) 123-4567</p>
+                    <p className="text-muted-foreground">(+62) 82241986504 </p>
                   </div>
                 </div>
                 <div className="flex items-start gap-4">
@@ -46,7 +44,7 @@ export default function ContactTemplate() {
                   </div>
                   <div>
                     <h3 className="font-bold">Office</h3>
-                    <p className="text-muted-foreground">123 Tech Street, San Francisco, CA 94107</p>
+                    <p className="text-muted-foreground">Jalan Pagenjahan, Adiwerna, Tegal</p>
                   </div>
                 </div>
                 <div className="mt-6">
@@ -55,10 +53,6 @@ export default function ContactTemplate() {
                     <Link href="#" className="text-muted-foreground hover:text-primary">
                       <Github className="h-5 w-5" />
                       <span className="sr-only">GitHub</span>
-                    </Link>
-                    <Link href="#" className="text-muted-foreground hover:text-primary">
-                      <Twitter className="h-5 w-5" />
-                      <span className="sr-only">Twitter</span>
                     </Link>
                     <Link href="#" className="text-muted-foreground hover:text-primary">
                       <Linkedin className="h-5 w-5" />
@@ -72,52 +66,7 @@ export default function ContactTemplate() {
                 </div>
               </div>
               <div className="rounded-lg border bg-background p-6 shadow-lg">
-                <form className="space-y-4">
-                  <div className="grid gap-4 sm:grid-cols-2">
-                    <div className="space-y-2">
-                      <label
-                        htmlFor="name"
-                        className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                      >
-                        Name
-                      </label>
-                      <Input id="name" placeholder="Enter your name" />
-                    </div>
-                    <div className="space-y-2">
-                      <label
-                        htmlFor="email"
-                        className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                      >
-                        Email
-                      </label>
-                      <Input id="email" type="email" placeholder="Enter your email" />
-                    </div>
-                  </div>
-                  <div className="space-y-2">
-                    <label
-                      htmlFor="subject"
-                      className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                    >
-                      Subject
-                    </label>
-                    <Input id="subject" placeholder="Enter the subject" />
-                  </div>
-                  <div className="space-y-2">
-                    <label
-                      htmlFor="message"
-                      className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                    >
-                      Message
-                    </label>
-                    <Textarea id="message" placeholder="Enter your message" className="min-h-[120px]" />
-                  </div>
-                  <Button
-                    type="submit"
-                    className="w-full bg-gradient-to-r from-primary to-purple-600 hover:from-purple-800/90 hover:to-purple-500/90 font-bold" 
-                  >
-                    Send Message
-                  </Button>
-                </form>
+                <FormContact />
               </div>
             </div>
           </div>
