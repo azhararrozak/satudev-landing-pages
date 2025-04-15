@@ -5,13 +5,14 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import Image from "next/image";
 import projects from "@/data/PortofolioData";
 import {Button} from "@/components/ui/button";
+import Link from "next/link";
 
 export default function PortofolioTemplate() {
   const categories = [
     { id: "all", label: "All Projects" },
-    { id: "mobile", label: "Mobile Apps" },
-    { id: "web", label: "Web Apps" },
-    { id: "software", label: "Custom Software" },
+    { id: "mobile", label: "Mobile" },
+    { id: "web", label: "Web" },
+    { id: "software", label: "Custom App" },
   ];
 
   const [projectsList] = useState(projects);
@@ -35,12 +36,12 @@ export default function PortofolioTemplate() {
         </div>
         <Tabs defaultValue="all" className="w-full mt-6">
           <div className="flex justify-center mb-12">
-            <TabsList>
+            <TabsList className="border-2 ">
               {categories.map((category) => (
                 <TabsTrigger
                   key={category.id}
                   value={category.id}
-                  className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
+                  className="data-[state=active]:bg-primary data-[state=active]:text-white"
                 >
                   {category.label}
                 </TabsTrigger>
@@ -92,9 +93,9 @@ export default function PortofolioTemplate() {
           ))}
         </Tabs>
         <div className="mt-10 flex justify-center">
-          <Button variant="outline" size="lg">
+            <Link href={"/projects"} className="rounded-lg border-2 px-4 dark:border-white text-gray-600 py-2 font-bold">
             View All Projects
-          </Button>
+            </Link>
         </div>
       </div>
     </section>

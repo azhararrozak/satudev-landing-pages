@@ -35,13 +35,17 @@ export default function AboutTemplate() {
                     <h3 className="text-3xl font-bold">10+</h3>
                     <p className="text-sm text-muted-foreground">Projects Completed</p>
                   </div>
-                  {/* <div className="text-center">
-                    <h3 className="text-3xl font-bold">20+</h3>
+                  <div className="text-center">
+                    <h3 className="text-3xl font-bold">2+</h3>
                     <p className="text-sm text-muted-foreground">Team Members</p>
-                  </div> */}
+                  </div>
                   <div className="text-center">
                     <h3 className="text-3xl font-bold">3</h3>
                     <p className="text-sm text-muted-foreground">Countries Served</p>
+                  </div>
+                  <div className="text-center">
+                    <h3 className="text-3xl font-bold">20+</h3>
+                    <p className="text-sm text-muted-foreground">Clients Served</p>
                   </div>
                 </div>
               </div>
