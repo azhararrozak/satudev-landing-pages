@@ -4,7 +4,6 @@ import { useState } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import Image from "next/image";
 import projects from "@/data/PortofolioData";
-import {Button} from "@/components/ui/button";
 import Link from "next/link";
 
 export default function PortofolioTemplate() {
