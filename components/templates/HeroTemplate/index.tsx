@@ -1,7 +1,20 @@
+"use client"
+
 import Image from 'next/image'
 import { Button } from '@/components/ui/button'
+import { useLanguage } from '@/components/providers/LanguageProvider'
 
 export default function HeroTemplate() {
+  const { t } = useLanguage()
+
+  const handleGetStarted = () => {
+    const contactSection = document.getElementById('contact');
+    if (contactSection) {
+      contactSection.scrollIntoView({ behavior: 'smooth' });
+    }
+  };
+
+  
   return (
     <section className="w-full py-12 md:py-24 lg:py-32 xl:py-48 bg-gradient-to-r from-primary/10 via-primary/5 to-background">
       <div className="px-4 md:px-6">
@@ -9,23 +22,23 @@ export default function HeroTemplate() {
           <div className="flex flex-col justify-center space-y-4">
             <div className="space-y-2">
               <h1 className="text-3xl font-bold tracking-tighter sm:text-5xl xl:text-6xl/none bg-clip-text text-transparent bg-gradient-to-r from-primary to-primary/60">
-                Transforming Ideas into Digital Reality
+                {t("hero.title")}
               </h1>
               <p className="max-w-[600px] text-muted-foreground md:text-xl">
-                We build exceptional mobile and web applications that help
-                businesses grow and succeed in the digital world.
+                {t("hero.subtitle")}
               </p>
             </div>
             <div className="flex flex-col gap-2 min-[400px]:flex-row">
               <Button
+                onClick={handleGetStarted}
                 size="lg"
                 className="bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70"
               >
-                Get Started
+                {t("hero.cta")}
               </Button>
-              <Button size="lg" variant="outline">
-                Learn More
-              </Button>
+              {/* <Button size="lg" variant="outline">
+                {t("hero.learnMore")}
+              </Button> */} 
             </div>
           </div>
           <div className="flex items-center justify-center">

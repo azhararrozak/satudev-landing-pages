@@ -1,7 +1,11 @@
+"use client"
+
 import Card from "@/components/organisms/CardServices";
 import services from "@/data/ServicesData";
+import { useLanguage } from "@/components/providers/LanguageProvider";
 
 export default function ServicesTemplate() {
+  const { t } = useLanguage()
   return (
     <section
     id="services"
@@ -12,14 +16,13 @@ export default function ServicesTemplate() {
         <div className="space-y-2">
           <div className="inline-block rounded-lg bg-purple-600 text-white font-bold dark:bg-blue-300 px-3 py-1 text-sm  light:text-black">
             {" "}
-            Our Services
+            {t("services.badge")}
           </div>
           <h2 className="text-3xl font-bold tracking-tighter md:text-4xl/tight">
-            Expert Software Development Solutions
+            {t("services.title")}
           </h2>
           <p className="max-w-[900px] text-muted-foreground md:text-xl/relaxed">
-            We offer comprehensive development services to bring your digital
-            vision to life.
+            {t("services.subtitle")}
           </p>
         </div>
       </div>

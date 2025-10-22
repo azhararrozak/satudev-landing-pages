@@ -5,8 +5,10 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import Image from "next/image";
 import projects from "@/data/PortofolioData";
 import Link from "next/link";
+import { useLanguage } from "@/components/providers/LanguageProvider";
 
 export default function PortofolioTemplate() {
+  const { t } = useLanguage()
   const categories = [
     { id: "all", label: "All Projects" },
     { id: "mobile", label: "Mobile" },
@@ -22,14 +24,13 @@ export default function PortofolioTemplate() {
         <div className="flex flex-col items-center justify-center space-y-4 text-center">
           <div className="space-y-2">
             <div className="inline-block rounded-lg bg-purple-600 font-bold dark:bg-blue-300 px-3 py-1 text-sm text-primary-foreground">
-              Our Work
+              {t("portfolio.badge")}
             </div>
             <h2 className="text-3xl font-bold tracking-tighter md:text-4xl/tight">
-              Featured Projects
+              {t("portfolio.title")}
             </h2>
             <p className="max-w-[900px] text-muted-foreground md:text-xl/relaxed">
-              Explore our portfolio of successful projects and ongoing
-              developments.
+              {t("portfolio.subtitle")}
             </p>
           </div>
         </div>
@@ -93,7 +94,7 @@ export default function PortofolioTemplate() {
         </Tabs>
         <div className="mt-10 flex justify-center">
             <Link href={"/projects"} className="rounded-lg border-2 px-4 dark:border-white text-gray-600 py-2 font-bold">
-            View All Projects
+            {t("portfolio.viewAll")}
             </Link>
         </div>
       </div>

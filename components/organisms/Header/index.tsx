@@ -5,10 +5,12 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Moon, Sun, Menu } from "lucide-react";
 import Image from "next/image";
+import { useLanguage } from "@/components/providers/LanguageProvider";
 
 export default function Header() {
-    const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isDarkMode, setIsDarkMode] = useState(false);
+  const { language, setLanguage, t } = useLanguage();
 
   useEffect(() => {
     // Check for dark mode preference
@@ -37,6 +39,10 @@ export default function Header() {
     }
   };
 
+  const toggleLanguage = () => {
+    setLanguage(language === "en" ? "id" : "en");
+  };
+
   return (
     <header className="sticky top-0 z-50 w-full border-b border-slate-200 dark:border-slate-700 bg-white/80 dark:bg-slate-900/80 backdrop-blur-sm">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
@@ -57,31 +63,34 @@ export default function Header() {
               href="#services"
               className="text-sm font-medium text-slate-700 hover:text-primary dark:text-slate-200 dark:hover:text-primary"
             >
-              Services
+              {t("nav.services")}
             </Link>
             <Link
               href="#portfolio"
               className="text-sm font-medium text-slate-700 hover:text-primary dark:text-slate-200 dark:hover:text-primary"
             >
-              Portfolio
+              {t("nav.portfolio")}
             </Link>
             <Link
               href="#about"
               className="text-sm font-medium text-slate-700 hover:text-primary dark:text-slate-200 dark:hover:text-primary"
             >
-              About
+              {t("nav.about")}
             </Link>
             <Link
               href="#contact"
               className="text-sm font-medium text-slate-700 hover:text-primary dark:text-slate-200 dark:hover:text-primary"
             >
-              Contact
+              {t("nav.contact")}
             </Link>
-            <Button
-              variant="default"
-              className="bg-gradient-to-r from-primary to-purple-600 hover:from-primary/90 hover:to-purple-600/90"
+            
+            <Button 
+              variant="ghost" 
+              size="icon" 
+              onClick={toggleLanguage}
+              title={language === "en" ? "Switch to Indonesian" : "Ganti ke Bahasa Inggris"}
             >
-              Get Started
+              <span className="text-xs font-bold">{language.toUpperCase()}</span>
             </Button>
             <Button variant="ghost" size="icon" onClick={toggleDarkMode}>
               {isDarkMode ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
@@ -89,6 +98,15 @@ export default function Header() {
           </nav>
 
           <div className="flex md:hidden">
+            <Button 
+              variant="ghost" 
+              size="icon" 
+              onClick={toggleLanguage} 
+              className="mr-2"
+              title={language === "en" ? "Switch to Indonesian" : "Ganti ke Bahasa Inggris"}
+            >
+              <span className="text-xs font-bold">{language.toUpperCase()}</span>
+            </Button>
             <Button variant="ghost" size="icon" onClick={toggleDarkMode} className="mr-2">
               {isDarkMode ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
             </Button>
@@ -112,35 +130,35 @@ export default function Header() {
               className="text-lg font-medium text-slate-700 hover:text-primary dark:text-slate-200 dark:hover:text-primary"
               onClick={() => setIsMenuOpen(false)}
             >
-              Services
+              {t("nav.services")}
             </Link>
             <Link
               href="#portfolio"
               className="text-lg font-medium text-slate-700 hover:text-primary dark:text-slate-200 dark:hover:text-primary"
               onClick={() => setIsMenuOpen(false)}
             >
-              Portfolio
+              {t("nav.portfolio")}
             </Link>
             <Link
               href="#about"
               className="text-lg font-medium text-slate-700 hover:text-primary dark:text-slate-200 dark:hover:text-primary"
               onClick={() => setIsMenuOpen(false)}
             >
-              About
+              {t("nav.about")}
             </Link>
             <Link
               href="#contact"
               className="text-lg font-medium text-slate-700 hover:text-primary dark:text-slate-200 dark:hover:text-primary"
               onClick={() => setIsMenuOpen(false)}
             >
-              Contact
+              {t("nav.contact")}
             </Link>
             <Button
               variant="default"
               className="bg-gradient-to-r from-primary to-purple-600 hover:from-primary/90 hover:to-purple-600/90 w-full"
               onClick={() => setIsMenuOpen(false)}
             >
-              Get Started
+              {t("nav.getStarted")}
             </Button>
           </nav>
         </div>

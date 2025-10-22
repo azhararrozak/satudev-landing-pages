@@ -14,6 +14,7 @@ import React, { useMemo, useState } from "react"
 import projectsData from "../../data/PortofolioData"
 import ProjectCard from "../../components/organisms/ProjectCard"
 import { paginate } from "../../lib/utils"
+import { useLanguage } from "@/components/providers/LanguageProvider"
 
 type Project = {
   title: string
@@ -26,6 +27,7 @@ type Project = {
 const PER_PAGE = 6
 
 export default function ProjectPages() {
+  const { t } = useLanguage()
   const [selectedCategory, setSelectedCategory] = useState<string>("all")
   const [page, setPage] = useState<number>(1)
 
@@ -51,10 +53,10 @@ export default function ProjectPages() {
   return (
     <main className="max-w-6xl mx-auto px-4 py-8">
       <header className="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <h1 className="text-2xl font-bold">Projects</h1>
+        <h1 className="text-2xl font-bold">{t("projects.title")}</h1>
 
         <div className="flex items-center gap-3">
-          <label className="text-sm text-gray-600 dark:text-gray-300">Category:</label>
+          <label className="text-sm text-gray-600 dark:text-gray-300">{t("projects.category")}</label>
           <select
             value={selectedCategory}
             onChange={(e) => {
@@ -65,7 +67,7 @@ export default function ProjectPages() {
           >
             {categories.map((c) => (
               <option key={c} value={c}>
-                {c}
+                {c === "all" ? t("projects.categoryAll") : c}
               </option>
             ))}
           </select>
@@ -84,7 +86,7 @@ export default function ProjectPages() {
           disabled={pageData.current === 1}
           className="px-3 py-1 border rounded disabled:opacity-50 bg-white dark:bg-slate-800 text-gray-900 dark:text-gray-100 border-gray-300 dark:border-gray-700"
         >
-          Prev
+          {t("projects.prev")}
         </button>
 
         {Array.from({ length: pageData.totalPages }).map((_, i) => {
@@ -104,7 +106,7 @@ export default function ProjectPages() {
           disabled={pageData.current === pageData.totalPages}
           className="px-3 py-1 border rounded disabled:opacity-50 bg-white dark:bg-slate-800 text-gray-900 dark:text-gray-100 border-gray-300 dark:border-gray-700"
         >
-          Next
+          {t("projects.next")}
         </button>
       </nav>
     </main>
