@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { Moon, Sun, Menu } from "lucide-react";
+import { Moon, Sun, Menu, X } from "lucide-react";
 import Image from "next/image";
 import { useLanguage } from "@/components/providers/LanguageProvider";
 
@@ -44,7 +44,7 @@ export default function Header() {
   };
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b border-slate-200 dark:border-slate-700 bg-white/80 dark:bg-slate-900/80 backdrop-blur-sm">
+    <header className="sticky top-0 z-40 w-full border-b border-slate-200 dark:border-slate-700 bg-white/80 dark:bg-slate-900/80 backdrop-blur-sm">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex h-16 items-center justify-between">
           <div className="flex items-center">
@@ -119,9 +119,9 @@ export default function Header() {
 
       {isMenuOpen && (
         <div className="md:hidden fixed inset-0 z-50 bg-white dark:bg-slate-900">
-          <div className="flex justify-end p-4">
+          <div className="flex justify-end px-4 pt-4">
             <Button variant="ghost" size="icon" onClick={() => setIsMenuOpen(false)}>
-              <Menu className="h-6 w-6" />
+              <X className="h-6 w-6" />
             </Button>
           </div>
           <nav className="flex flex-col items-center space-y-8 p-8 bg-white dark:bg-slate-900">
