@@ -12,10 +12,12 @@ import {
   DialogTitle,
   DialogDescription
 } from "@/components/ui/dialog";
+import { useLanguage } from "@/components/providers/LanguageProvider";
 
 export default function FormContact() {
   const form = useRef<HTMLFormElement>(null);
-  const [open, setOpen] = useState(false); 
+  const [open, setOpen] = useState(false);
+  const { t } = useLanguage();
 
   const sendEmail = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -46,48 +48,48 @@ export default function FormContact() {
         <div className="grid gap-4 sm:grid-cols-2">
           <div className="space-y-2">
             <label htmlFor="name" className="text-sm font-medium">
-              Name
+              {t("contact.form.name")}
             </label>
             <Input
               id="name"
               type="text"
               name="user_name"
-              placeholder="Enter your name"
+              placeholder={t("contact.form.namePlaceholder")}
               required
             />
           </div>
           <div className="space-y-2">
             <label htmlFor="email" className="text-sm font-medium">
-              Email
+              {t("contact.form.email")}
             </label>
             <Input
               id="email"
               type="email"
               name="user_email"
-              placeholder="Enter your email"
+              placeholder={t("contact.form.emailPlaceholder")}
               required
             />
           </div>
         </div>
         <div className="space-y-2">
           <label htmlFor="subject" className="text-sm font-medium">
-            Subject
+            {t("contact.form.subject")}
           </label>
           <Input
             id="subject"
             name="subject"
-            placeholder="Enter the subject"
+            placeholder={t("contact.form.subjectPlaceholder")}
             required
           />
         </div>
         <div className="space-y-2">
           <label htmlFor="message" className="text-sm font-medium">
-            Message
+            {t("contact.form.message")}
           </label>
           <Textarea
             id="message"
             name="message"
-            placeholder="Enter your message"
+            placeholder={t("contact.form.messagePlaceholder")}
             className="min-h-[120px]"
             required
           />
@@ -96,7 +98,7 @@ export default function FormContact() {
           type="submit"
           className="w-full bg-gradient-to-r from-primary to-purple-600 hover:from-purple-800/90 hover:to-purple-500/90 font-bold"
         >
-          Send Message
+          {t("contact.form.submit")}
         </Button>
       </form>
 

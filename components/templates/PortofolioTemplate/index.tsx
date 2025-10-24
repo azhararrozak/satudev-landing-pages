@@ -10,10 +10,10 @@ import { useLanguage } from "@/components/providers/LanguageProvider";
 export default function PortofolioTemplate() {
   const { t } = useLanguage()
   const categories = [
-    { id: "all", label: "All Projects" },
-    { id: "mobile", label: "Mobile" },
-    { id: "web", label: "Web" },
-    { id: "software", label: "Custom App" },
+    { id: "all", label: t("portfolio.viewAll") },
+    { id: "mobile", label: t("portfolio.category.mobile") },
+    { id: "web", label: t("portfolio.category.web") },
+    { id: "software", label: t("portfolio.category.CustomApp") },
   ];
 
   const [projectsList] = useState(projects);

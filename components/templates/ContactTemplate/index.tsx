@@ -1,20 +1,25 @@
+"use client"
+
 import React from 'react'
-import { Mail, Phone, MapPin, Github, Linkedin, Instagram } from 'lucide-react'
+import { Mail, Phone, MapPin, Instagram } from 'lucide-react'
 import Link from 'next/link'
 import FormContact from '@/components/organisms/FormContact'
+import { useLanguage } from '@/components/providers/LanguageProvider'
 
 export default function ContactTemplate() {
+  const { t } = useLanguage();
+
   return (
     <section id="contact" className="w-full py-12 md:py-24 lg:py-32 bg-muted">
           <div className="container px-4 md:px-6">
             <div className="flex flex-col items-center justify-center space-y-4 text-center">
               <div className="space-y-2">
                 <div className="inline-block rounded-lg bg-purple-600 font-bold dark:bg-blue-300 px-3 py-1 text-sm text-primary-foreground">
-                  Get in Touch
+                  {t("contact.badge")}
                 </div>
-                <h2 className="text-3xl font-bold tracking-tighter md:text-4xl/tight">{`Let's Discuss Your Project`}</h2>
+                <h2 className="text-3xl font-bold tracking-tighter md:text-4xl/tight">{t("contact.title")}</h2>
                 <p className="max-w-[900px] text-muted-foreground md:text-xl/relaxed">
-                  Have a question or ready to start your next project? Reach out to us.
+                  {t("contact.subtitle")}
                 </p>
               </div>
             </div>
@@ -25,7 +30,7 @@ export default function ContactTemplate() {
                     <Mail className="h-5 w-5 text-primary" />
                   </div>
                   <div>
-                    <h3 className="font-bold">Email</h3>
+                    <h3 className="font-bold">{t("contact.form.email")}</h3>
                     <p className="text-muted-foreground">satudev.solution@gmail.com</p>
                   </div>
                 </div>
@@ -34,7 +39,7 @@ export default function ContactTemplate() {
                     <Phone className="h-5 w-5 text-primary" />
                   </div>
                   <div>
-                    <h3 className="font-bold">Phone</h3>
+                    <h3 className="font-bold">{t("contact.phone")}</h3>
                     <p className="text-muted-foreground">(+62) 82241986504 </p>
                   </div>
                 </div>
@@ -43,22 +48,14 @@ export default function ContactTemplate() {
                     <MapPin className="h-5 w-5 text-primary" />
                   </div>
                   <div>
-                    <h3 className="font-bold">Office</h3>
+                    <h3 className="font-bold">{t("contact.office")}</h3>
                     <p className="text-muted-foreground">Jalan Pagenjahan, Adiwerna, Tegal</p>
                   </div>
                 </div>
                 <div className="mt-6">
-                  <h3 className="font-bold mb-2">Follow Us</h3>
+                  <h3 className="font-bold mb-2">{t("contact.followUs")}</h3>
                   <div className="flex gap-4">
-                    <Link href="#" className="text-muted-foreground hover:text-primary">
-                      <Github className="h-5 w-5" />
-                      <span className="sr-only">GitHub</span>
-                    </Link>
-                    <Link href="#" className="text-muted-foreground hover:text-primary">
-                      <Linkedin className="h-5 w-5" />
-                      <span className="sr-only">LinkedIn</span>
-                    </Link>
-                    <Link href="#" className="text-muted-foreground hover:text-primary">
+                    <Link href="https://www.instagram.com/satudev.solution/" className="text-muted-foreground hover:text-primary">
                       <Instagram className="h-5 w-5" />
                       <span className="sr-only">Instagram</span>
                     </Link>

@@ -1,7 +1,12 @@
+"use client"
+
 import React from 'react'
 import Image from 'next/image'
+import { useLanguage } from '@/components/providers/LanguageProvider'
 
 export default function AboutTemplate() {
+  const { t } = useLanguage();
+
   return (
     <section id="about" className="w-full py-12 md:py-24 lg:py-32 bg-gradient-to-b from-background to-muted/50">
           <div className="container px-4 md:px-6">
@@ -9,25 +14,21 @@ export default function AboutTemplate() {
               <div className="flex flex-col justify-center space-y-4">
                 <div className="space-y-2">
                   <div className="inline-block rounded-lg bg-purple-600 font-bold dark:bg-blue-300 px-3 py-1 text-sm text-primary-foreground">
-                    About Us
+                    {t("about.badge")}
                   </div>
                   <h2 className="text-3xl font-bold tracking-tighter md:text-4xl/tight">
-                    Passionate About Creating Exceptional Software
+                    {t("about.title")}
                   </h2>
                   <p className="text-muted-foreground md:text-xl/relaxed">
-                    We are a team of dedicated developers, designers, and strategists committed to delivering innovative
-                    digital solutions.
+                    {t("about.description")}
                   </p>
                 </div>
                 <div className="space-y-4">
                   <p className="text-muted-foreground">
-                    Founded in 2024, SatuDev Solution has grown from a small startup to a trusted software development
-                    partner for businesses of all sizes. Our mission is to help organizations leverage technology to
-                    achieve their goals and stay ahead in the digital landscape.
+                    {t("about.history")}
                   </p>
                   <p className="text-muted-foreground">
-                    We believe in a collaborative approach, working closely with our clients to understand their unique
-                    challenges and deliver tailored solutions that exceed expectations.
+                    {t("about.believe")}
                   </p>
                 </div>
                 <div className="flex gap-4">

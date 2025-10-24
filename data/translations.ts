@@ -1,4 +1,4 @@
-export type TranslationKey = keyof typeof translations.en
+export type TranslationKey = keyof typeof translations.en;
 
 export const translations = {
   en: {
@@ -12,7 +12,8 @@ export const translations = {
 
     // Hero Section
     "hero.title": "Build Your Digital Future",
-    "hero.subtitle": "Professional web and mobile development services to bring your ideas to life",
+    "hero.subtitle":
+      "Professional web and mobile development services to bring your ideas to life",
     "hero.cta": "Start Your Project",
     "hero.learnMore": "Learn More",
 
@@ -21,44 +22,54 @@ export const translations = {
     "services.title": "What We Offer",
     "services.subtitle": "Comprehensive solutions for your digital needs",
     "services.webDev.title": "Web Development",
-    "services.webDev.desc": "Custom websites and web applications built with modern technologies",
+    "services.webDev.desc":
+      "Custom websites and web applications built with modern technologies",
     "services.mobileDev.title": "Mobile Development",
-    "services.mobileDev.desc": "Native and cross-platform mobile apps for iOS and Android",
+    "services.mobileDev.desc":
+      "Native and cross-platform mobile apps for iOS and Android",
     "services.uiux.title": "UI/UX Design",
-    "services.uiux.desc": "Beautiful and intuitive designs that enhance user experience",
+    "services.uiux.desc":
+      "Beautiful and intuitive designs that enhance user experience",
     "services.cloud.title": "Cloud Solutions",
-    "services.cloud.desc": "Scalable cloud infrastructure and deployment services",
+    "services.cloud.desc":
+      "Scalable cloud infrastructure and deployment services",
 
     // Portfolio Section
     "portfolio.badge": "Our Work",
     "portfolio.title": "Featured Projects",
     "portfolio.subtitle": "Check out some of our recent work",
-    "portfolio.viewAll": "View All Projects",
+    "portfolio.viewAll": "All Projects",
     "portfolio.category.mobile": "Mobile",
-    "portfolio.category.software": "Software",
     "portfolio.category.web": "Web",
+    "portfolio.category.CustomApp": "Custom App",
 
     // About Section
     "about.badge": "About Us",
-    "about.title": "Who We Are",
-    "about.description": "We are a team of passionate developers and designers dedicated to creating exceptional digital experiences. With years of experience in the industry, we help businesses transform their ideas into reality.",
-    "about.mission.title": "Our Mission",
-    "about.mission.text": "To deliver innovative and high-quality solutions that exceed client expectations",
-    "about.vision.title": "Our Vision",
-    "about.vision.text": "To be the leading tech partner for businesses seeking digital transformation",
+    "about.title": "Passionate About Creating Exceptional Software",
+    "about.description":
+      "We are a team of dedicated developers, designers, and strategists committed to delivering innovative digital solutions.",
+    "about.history":
+      "Founded in 2024, SatuDev Solution has grown from a small startup to a trusted software development partner for businesses of all sizes. Our mission is to help organizations leverage technology to achieve their goals and stay ahead in the digital landscape.",
+    "about.believe":
+      "We believe in a collaborative approach, working closely with our clients to understand their unique challenges and deliver tailored solutions that exceed expectations.",
 
     // Contact Section
     "contact.badge": "Get In Touch",
-    "contact.title": "Let's Work Together",
-    "contact.subtitle": "Have a project in mind? We'd love to hear from you.",
+    "contact.title": "Let's Discuss Your Project",
+    "contact.subtitle":
+      "Have a question or ready to start your next project? Reach out to us.",
+    "contact.phone": "Phone",
+    "contact.office": "Office",
     "contact.form.name": "Name",
     "contact.form.email": "Email",
+    "contact.form.subject": "Subject",
     "contact.form.message": "Message",
     "contact.form.submit": "Send Message",
     "contact.form.namePlaceholder": "Your name",
     "contact.form.emailPlaceholder": "your@email.com",
+    "contact.form.subjectPlaceholder": "Enter the Subject",
     "contact.form.messagePlaceholder": "Tell us about your project...",
-
+    "contact.followUs": "Follow Us",
     // Projects Page
     "projects.title": "Projects",
     "projects.category": "Category:",
@@ -86,7 +97,8 @@ export const translations = {
 
     // Hero Section
     "hero.title": "Bangun Masa Depan Digital Anda",
-    "hero.subtitle": "Layanan pengembangan web dan mobile profesional untuk mewujudkan ide Anda",
+    "hero.subtitle":
+      "Layanan pengembangan web dan mobile profesional untuk mewujudkan ide Anda",
     "hero.cta": "Mulai Proyek Anda",
     "hero.learnMore": "Pelajari Lebih Lanjut",
 
@@ -95,44 +107,55 @@ export const translations = {
     "services.title": "Apa Yang Kami Tawarkan",
     "services.subtitle": "Solusi komprehensif untuk kebutuhan digital Anda",
     "services.webDev.title": "Pengembangan Web",
-    "services.webDev.desc": "Website dan aplikasi web kustom yang dibangun dengan teknologi modern",
+    "services.webDev.desc":
+      "Website dan aplikasi web kustom yang dibangun dengan teknologi modern",
     "services.mobileDev.title": "Pengembangan Mobile",
-    "services.mobileDev.desc": "Aplikasi mobile native dan cross-platform untuk iOS dan Android",
+    "services.mobileDev.desc":
+      "Aplikasi mobile native dan cross-platform untuk iOS dan Android",
     "services.uiux.title": "Desain UI/UX",
-    "services.uiux.desc": "Desain yang indah dan intuitif untuk meningkatkan pengalaman pengguna",
+    "services.uiux.desc":
+      "Desain yang indah dan intuitif untuk meningkatkan pengalaman pengguna",
     "services.cloud.title": "Solusi Cloud",
-    "services.cloud.desc": "Infrastruktur cloud yang scalable dan layanan deployment",
+    "services.cloud.desc":
+      "Infrastruktur cloud yang scalable dan layanan deployment",
 
     // Portfolio Section
     "portfolio.badge": "Karya Kami",
     "portfolio.title": "Proyek Unggulan",
     "portfolio.subtitle": "Lihat beberapa karya terbaru kami",
-    "portfolio.viewAll": "Lihat Semua Proyek",
+    "portfolio.viewAll": "Semua Proyek",
     "portfolio.category.mobile": "Mobile",
-    "portfolio.category.software": "Software",
     "portfolio.category.web": "Web",
+    "portfolio.category.CustomApp": "Aplikasi Kustom",
 
     // About Section
     "about.badge": "Tentang Kami",
-    "about.title": "Siapa Kami",
-    "about.description": "Kami adalah tim developer dan designer yang bersemangat untuk menciptakan pengalaman digital yang luar biasa. Dengan pengalaman bertahun-tahun di industri ini, kami membantu bisnis mengubah ide mereka menjadi kenyataan.",
-    "about.mission.title": "Misi Kami",
-    "about.mission.text": "Memberikan solusi inovatif dan berkualitas tinggi yang melebihi ekspektasi klien",
-    "about.vision.title": "Visi Kami",
-    "about.vision.text": "Menjadi mitra teknologi terkemuka untuk bisnis yang mencari transformasi digital",
+    "about.title":
+      "Memiliki Semangat untuk Menciptakan Perangkat Lunak yang Luar Biasa",
+    "about.description":
+      "Kami adalah tim pengembang, desainer, dan ahli strategi yang berdedikasi untuk memberikan solusi digital yang inovatif.",
+    "about.history":
+      "Didirikan pada tahun 2024, SatuDev Solution telah berkembang dari startup kecil menjadi mitra pengembangan perangkat lunak yang tepercaya untuk bisnis dari semua ukuran. Misi kami adalah membantu organisasi memanfaatkan teknologi untuk mencapai tujuan mereka dan tetap unggul di lanskap digital.",
+    "about.believe":
+      "Kami percaya pada pendekatan kolaboratif, bekerja sama dengan klien kami untuk memahami tantangan unik mereka dan memberikan solusi yang disesuaikan yang melebihi harapan.",
 
     // Contact Section
     "contact.badge": "Hubungi Kami",
     "contact.title": "Mari Bekerja Sama",
-    "contact.subtitle": "Punya proyek? Kami ingin mendengar dari Anda.",
+    "contact.subtitle": "Punya pertanyaan atau siap memulai proyek Anda berikutnya? Hubungi kami.",
+    "contact.phone": "Telepon",
+    "contact.office": "Kantor",
     "contact.form.name": "Nama",
     "contact.form.email": "Email",
+    "contact.form.subject": "Subjek",
     "contact.form.message": "Pesan",
     "contact.form.submit": "Kirim Pesan",
     "contact.form.namePlaceholder": "Nama Anda",
     "contact.form.emailPlaceholder": "email@anda.com",
+    "contact.form.subjectPlaceholder": "Masukkan Subjek",
     "contact.form.messagePlaceholder": "Ceritakan tentang proyek Anda...",
-
+    "contact.followUs": "Ikuti Kami",
+    
     // Projects Page
     "projects.title": "Proyek",
     "projects.category": "Kategori:",
@@ -149,4 +172,4 @@ export const translations = {
     "footer.privacy": "Kebijakan Privasi",
     "footer.terms": "Syarat Layanan",
   },
-}
+};
