@@ -65,6 +65,10 @@ export const translations = {
       "Founded in 2024, SatuDev Solution has grown from a small startup to a trusted software development partner for businesses of all sizes. Our mission is to help organizations leverage technology to achieve their goals and stay ahead in the digital landscape.",
     "about.believe":
       "We believe in a collaborative approach, working closely with our clients to understand their unique challenges and deliver tailored solutions that exceed expectations.",
+    "about.projectsCompleted": "Projects Completed",
+    "about.teamMembers": "Team Members",
+    "about.yearsExperience": "Years of Experience",
+    "about.clientsServed": "Clients Served",
 
     // Contact Section
     "contact.badge": "Get In Touch",
@@ -164,7 +168,11 @@ export const translations = {
       "Didirikan pada tahun 2024, SatuDev Solution telah berkembang dari startup kecil menjadi mitra pengembangan perangkat lunak yang tepercaya untuk bisnis dari semua ukuran. Misi kami adalah membantu organisasi memanfaatkan teknologi untuk mencapai tujuan mereka dan tetap unggul di lanskap digital.",
     "about.believe":
       "Kami percaya pada pendekatan kolaboratif, bekerja sama dengan klien kami untuk memahami tantangan unik mereka dan memberikan solusi yang disesuaikan yang melebihi harapan.",
-
+    "about.projectsCompleted": "Proyek Selesai",
+    "about.teamMembers": "Anggota Tim",
+    "about.yearsExperience": "Tahun Pengalaman",
+    "about.clientsServed": "Klien Dilayani",
+    
     // Contact Section
     "contact.badge": "Hubungi Kami",
     "contact.title": "Mari Bekerja Sama",

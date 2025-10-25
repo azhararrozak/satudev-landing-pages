@@ -31,22 +31,22 @@ export default function AboutTemplate() {
                     {t("about.believe")}
                   </p>
                 </div>
-                <div className="flex gap-4">
+                <div className="flex gap-4 w-full md:w-auto justify-between">
                   <div className="text-center">
-                    <h3 className="text-3xl font-bold">10+</h3>
-                    <p className="text-sm text-muted-foreground">Projects Completed</p>
+                    <h3 className="text-3xl font-bold">5+</h3>
+                    <p className="text-sm text-muted-foreground">{t("about.projectsCompleted")}</p>
+                  </div>
+                  <div className="text-center">
+                    <h3 className="text-3xl font-bold">4+</h3>
+                    <p className="text-sm text-muted-foreground">{t("about.teamMembers")}</p>
                   </div>
                   <div className="text-center">
                     <h3 className="text-3xl font-bold">2+</h3>
-                    <p className="text-sm text-muted-foreground">Team Members</p>
+                    <p className="text-sm text-muted-foreground">{t("about.yearsExperience")}</p>
                   </div>
                   <div className="text-center">
-                    <h3 className="text-3xl font-bold">3</h3>
-                    <p className="text-sm text-muted-foreground">Countries Served</p>
-                  </div>
-                  <div className="text-center">
-                    <h3 className="text-3xl font-bold">20+</h3>
-                    <p className="text-sm text-muted-foreground">Clients Served</p>
+                    <h3 className="text-3xl font-bold">10+</h3>
+                    <p className="text-sm text-muted-foreground">{t("about.clientsServed")}</p>
                   </div>
                 </div>
               </div>
