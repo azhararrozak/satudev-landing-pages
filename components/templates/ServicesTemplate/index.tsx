@@ -1,11 +1,13 @@
 "use client"
 
 import Card from "@/components/organisms/CardServices";
-import services from "@/data/ServicesData";
+import { useServices } from "@/data/ServicesData";
 import { useLanguage } from "@/components/providers/LanguageProvider";
 
 export default function ServicesTemplate() {
   const { t } = useLanguage()
+  const services = useServices();
+
   return (
     <section
     id="services"

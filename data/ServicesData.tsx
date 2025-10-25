@@ -1,48 +1,50 @@
+"use client";
+
 import { Smartphone, Globe, Code } from "lucide-react";
+import { useLanguage } from "@/components/providers/LanguageProvider";
 
-const services = [
-  {
-    title: "Mobile App Development",
-    description:
-      "Build cross-platform mobile applications with React Native that deliver native performance and feel.",
-    icon: <Smartphone className="h-12 w-12 text-primary" />,
-    features: [
-      "Cross-platform compatibility",
-      "Native performance",
-      "Reusable components",
-      "Fast development cycles",
-    ],
-    image:
-      "https://images.unsplash.com/photo-1512941937669-90a1b58e7e9c?q=80&w=2070&auto=format&fit=crop",
-  },
-  {
-    title: "Web Development",
-    description:
-      "Create modern, responsive web applications with Next.js that provide exceptional user experiences.",
-    icon: <Globe className="h-12 w-12 text-primary" />,
-    features: [
-      "Server-side rendering",
-      "Static site generation",
-      "API routes",
-      "Optimized performance",
-    ],
-    image:
-      "https://images.unsplash.com/photo-1547658719-da2b51169166?q=80&w=2064&auto=format&fit=crop",
-  },
-  {
-    title: "Custom Software Solutions",
-    description:
-      "Tailored software solutions designed to address your specific business challenges and requirements.",
-    icon: <Code className="h-12 w-12 text-primary" />,
-    features: [
-      "Bespoke development",
-      "Scalable architecture",
-      "Integration capabilities",
-      "Ongoing support",
-    ],
-    image:
-      "https://images.unsplash.com/photo-1623282033815-40b05d96c903?q=80&w=2070&auto=format&fit=crop",
-  },
-];
-
-export default services;
+export const useServices = () => {
+  const { t } = useLanguage();
+  
+  return [
+    {
+      title: t("services.mobileDev.title"),
+      description:
+      t("services.mobileDev.desc"),
+      icon: <Smartphone className="h-12 w-12 text-primary" />,
+      features: [
+        t("services.mobileDev.list1"),
+        t("services.mobileDev.list2"),
+        t("services.mobileDev.list3"),
+      ],
+      image:
+        "https://images.unsplash.com/photo-1512941937669-90a1b58e7e9c?q=80&w=2070&auto=format&fit=crop",
+    },
+    {
+      title: t("services.webDev.title"),
+      description:
+        t("services.webDev.desc"),
+      icon: <Globe className="h-12 w-12 text-primary" />,
+      features: [
+        t("services.webDev.list1"),
+        t("services.webDev.list2"),
+        t("services.webDev.list3"),
+      ],
+      image:
+        "https://images.unsplash.com/photo-1547658719-da2b51169166?q=80&w=2064&auto=format&fit=crop",
+    },
+    {
+      title: t("services.customApp.title"),
+      description:
+        t("services.customApp.desc"),
+      icon: <Code className="h-12 w-12 text-primary" />,
+      features: [
+        t("services.customApp.list1"),
+        t("services.customApp.list2"),
+        t("services.customApp.list3"),
+      ],
+      image:
+        "https://images.unsplash.com/photo-1623282033815-40b05d96c903?q=80&w=2070&auto=format&fit=crop",
+    },
+  ];
+};

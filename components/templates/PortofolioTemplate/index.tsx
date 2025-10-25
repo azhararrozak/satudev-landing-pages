@@ -1,9 +1,8 @@
 "use client";
 
-import { useState } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import Image from "next/image";
-import projects from "@/data/PortofolioData";
+import { usePortfolio } from "@/data/PortofolioData";
 import Link from "next/link";
 import { useLanguage } from "@/components/providers/LanguageProvider";
 
@@ -16,7 +15,7 @@ export default function PortofolioTemplate() {
     { id: "software", label: t("portfolio.category.CustomApp") },
   ];
 
-  const [projectsList] = useState(projects);
+  const projects = usePortfolio();
 
   return (
     <section id="portfolio" className="w-full py-12 md:py-24 lg:py-32">
@@ -51,10 +50,11 @@ export default function PortofolioTemplate() {
           {categories.map((category) => (
             <TabsContent key={category.id} value={category.id}>
               <div className="grid gap-6 pt-10 md:grid-cols-2 lg:grid-cols-3">
-                {projectsList
-                  .filter(
-                    (project) =>
-                      category.id === "all" || project.category === category.id
+                {projects
+                  .filter((project) =>
+                    category.id === "all"
+                      ? true
+                      : project.category === category.id
                   )
                   .map((project, index) => (
                     <div
@@ -92,8 +92,8 @@ export default function PortofolioTemplate() {
             </TabsContent>
           ))}
         </Tabs>
-        <div className="mt-10 flex justify-center">
-            <Link href={"/projects"} className="rounded-lg border-2 px-4 dark:border-white text-gray-600 py-2 font-bold">
+        <div className="mt-10 flex justify-center dark:text-white">
+            <Link href={"/projects"} className="rounded-lg border-2 px-4 dark:border-white text-gray-600 dark:text-white py-2 font-bold">
             {t("portfolio.viewAll")}
             </Link>
         </div>

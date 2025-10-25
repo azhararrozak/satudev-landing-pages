@@ -21,18 +21,25 @@ export const translations = {
     "services.badge": "Our Services",
     "services.title": "What We Offer",
     "services.subtitle": "Comprehensive solutions for your digital needs",
+
+    "services.mobileDev.title": "Mobile Development",
+    "services.mobileDev.desc":
+      "Build cross-platform mobile applications with React Native that deliver native performance and feel.",
+    "services.mobileDev.list1": "Cross-platform compatibility",
+    "services.mobileDev.list2": "Native performance",
+    "services.mobileDev.list3": "Intuitive user interfaces",
     "services.webDev.title": "Web Development",
     "services.webDev.desc":
       "Custom websites and web applications built with modern technologies",
-    "services.mobileDev.title": "Mobile Development",
-    "services.mobileDev.desc":
-      "Native and cross-platform mobile apps for iOS and Android",
-    "services.uiux.title": "UI/UX Design",
-    "services.uiux.desc":
-      "Beautiful and intuitive designs that enhance user experience",
-    "services.cloud.title": "Cloud Solutions",
-    "services.cloud.desc":
-      "Scalable cloud infrastructure and deployment services",
+    "services.webDev.list1": "Responsive design",
+    "services.webDev.list2": "API routes and integrations",
+    "services.webDev.list3": "Optimized performance",
+    "services.customApp.title": "Custom Software Solutions",
+    "services.customApp.desc":
+      "Tailored software solutions designed to address your specific business challenges and requirements.",
+    "services.customApp.list1": "Bespoke development",
+    "services.customApp.list2": "Scalable architecture",
+    "services.customApp.list3": "Ongoing support and maintenance",
 
     // Portfolio Section
     "portfolio.badge": "Our Work",
@@ -42,6 +49,12 @@ export const translations = {
     "portfolio.category.mobile": "Mobile",
     "portfolio.category.web": "Web",
     "portfolio.category.CustomApp": "Custom App",
+    "portfolio.projects.examSafe.title": "Exam Safe Browser App",
+    "portfolio.projects.examSafe.desc":
+      "A cross-platform mobile application for exam built with React Native",
+    "portfolio.projects.komiteQR.title": "Komite QR Code Scanner",
+    "portfolio.projects.komiteQR.desc":
+      "Custom QR code scanner app for payment processing",
 
     // About Section
     "about.badge": "About Us",
@@ -70,6 +83,7 @@ export const translations = {
     "contact.form.subjectPlaceholder": "Enter the Subject",
     "contact.form.messagePlaceholder": "Tell us about your project...",
     "contact.followUs": "Follow Us",
+
     // Projects Page
     "projects.title": "Projects",
     "projects.category": "Category:",
@@ -106,18 +120,24 @@ export const translations = {
     "services.badge": "Layanan Kami",
     "services.title": "Apa Yang Kami Tawarkan",
     "services.subtitle": "Solusi komprehensif untuk kebutuhan digital Anda",
-    "services.webDev.title": "Pengembangan Web",
-    "services.webDev.desc":
-      "Website dan aplikasi web kustom yang dibangun dengan teknologi modern",
     "services.mobileDev.title": "Pengembangan Mobile",
     "services.mobileDev.desc":
-      "Aplikasi mobile native dan cross-platform untuk iOS dan Android",
-    "services.uiux.title": "Desain UI/UX",
-    "services.uiux.desc":
-      "Desain yang indah dan intuitif untuk meningkatkan pengalaman pengguna",
-    "services.cloud.title": "Solusi Cloud",
-    "services.cloud.desc":
-      "Infrastruktur cloud yang scalable dan layanan deployment",
+      "Membangun aplikasi mobile lintas platform dengan React Native yang memberikan performa dan nuansa native.",
+    "services.mobileDev.list1": "Kompatibilitas lintas platform",
+    "services.mobileDev.list2": "Performa native",
+    "services.mobileDev.list3": "Antarmuka pengguna yang intuitif",
+    "services.webDev.title": "Pengembangan Web",
+    "services.webDev.desc":
+      "Situs web dan aplikasi web kustom yang dibangun dengan teknologi modern",
+    "services.webDev.list1": "Desain responsif",
+    "services.webDev.list2": "Rute API dan integrasi",
+    "services.webDev.list3": "Performa yang dioptimalkan",
+    "services.customApp.title": "Solusi Perangkat Lunak Kustom",
+    "services.customApp.desc":
+      "Solusi perangkat lunak yang disesuaikan untuk mengatasi tantangan dan kebutuhan bisnis spesifik Anda.",
+    "services.customApp.list1": "Pengembangan sesuai pesanan",
+    "services.customApp.list2": "Arsitektur yang dapat diskalakan",
+    "services.customApp.list3": "Dukungan dan pemeliharaan berkelanjutan",
 
     // Portfolio Section
     "portfolio.badge": "Karya Kami",
@@ -127,6 +147,12 @@ export const translations = {
     "portfolio.category.mobile": "Mobile",
     "portfolio.category.web": "Web",
     "portfolio.category.CustomApp": "Aplikasi Kustom",
+    "portfolio.projects.examSafe.title": "Aplikasi Exam Safe Browser",
+    "portfolio.projects.examSafe.desc":
+      "Aplikasi mobile lintas platform untuk ujian yang dibangun dengan React Native",
+    "portfolio.projects.komiteQR.title": "Pemindai Kode QR Komite",
+    "portfolio.projects.komiteQR.desc":
+      "Aplikasi pemindai kode QR kustom untuk pemrosesan pembayaran",
 
     // About Section
     "about.badge": "Tentang Kami",
@@ -142,7 +168,8 @@ export const translations = {
     // Contact Section
     "contact.badge": "Hubungi Kami",
     "contact.title": "Mari Bekerja Sama",
-    "contact.subtitle": "Punya pertanyaan atau siap memulai proyek Anda berikutnya? Hubungi kami.",
+    "contact.subtitle":
+      "Punya pertanyaan atau siap memulai proyek Anda berikutnya? Hubungi kami.",
     "contact.phone": "Telepon",
     "contact.office": "Kantor",
     "contact.form.name": "Nama",
@@ -155,7 +182,7 @@ export const translations = {
     "contact.form.subjectPlaceholder": "Masukkan Subjek",
     "contact.form.messagePlaceholder": "Ceritakan tentang proyek Anda...",
     "contact.followUs": "Ikuti Kami",
-    
+
     // Projects Page
     "projects.title": "Proyek",
     "projects.category": "Kategori:",
