@@ -13,7 +13,7 @@ export default function Footer() {
           </span>
         </div>
         <p className="text-center text-sm text-muted-foreground">
-          &copy; {new Date().getFullYear()} TechSolutions. All rights reserved.
+          &copy; {new Date().getFullYear()} SatuDev Solution. All rights reserved.
         </p>
         <div className="flex gap-4">
           <Link

@@ -16,7 +16,7 @@ export const usePortfolio = () => {
       title: t("portfolio.projects.komiteQR.title"),
       description: t("portfolio.projects.komiteQR.desc"),
       image: "/project-komite-qr.webp",
-      category: "software",
+      category: "web",
       tech: ["Mongo", "Express", "React", "Node.js"],
     },
   ];
