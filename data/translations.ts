@@ -3,6 +3,7 @@ export type TranslationKey = keyof typeof translations.en;
 export const translations = {
   en: {
     // Header/Navigation
+    "nav.home": "Home",
     "nav.services": "Services",
     "nav.portfolio": "Portfolio",
     "nav.about": "About",
@@ -106,6 +107,7 @@ export const translations = {
   },
   id: {
     // Header/Navigation
+    "nav.home": "Beranda",
     "nav.services": "Layanan",
     "nav.portfolio": "Portofolio",
     "nav.about": "Tentang",

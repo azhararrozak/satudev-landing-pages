@@ -43,6 +43,40 @@ export default function Header() {
     setLanguage(language === "en" ? "id" : "en");
   };
 
+  const handleNavClick = (e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
+    e.preventDefault();
+    const targetId = href.replace('#', '');
+    
+    if (targetId === 'home' || targetId === '') {
+      // Scroll to top
+      window.scrollTo({
+        top: 0,
+        behavior: 'smooth'
+      });
+      
+      // Trigger hero animation reset
+      window.dispatchEvent(new Event('hero-reset'));
+      
+      setIsMenuOpen(false);
+      return;
+    }
+    
+    const element = document.getElementById(targetId);
+    
+    if (element) {
+      const headerOffset = 80;
+      const elementPosition = element.getBoundingClientRect().top;
+      const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
+
+      window.scrollTo({
+        top: offsetPosition,
+        behavior: 'smooth'
+      });
+      
+      setIsMenuOpen(false);
+    }
+  };
+
   return (
     <header className="sticky top-0 z-40 w-full border-b border-slate-200 dark:border-slate-700 bg-white/80 dark:bg-slate-900/80 backdrop-blur-sm">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
@@ -51,7 +85,11 @@ export default function Header() {
             <div>
             <Image src="/SatuDev.png" className="px-2" alt="SatuDev" width={60} height={60} />
             </div>
-            <Link href="/" className="flex items-center space-x-2">
+            <Link 
+              href="/#home" 
+              onClick={(e) => handleNavClick(e, '#home')}
+              className="flex items-center space-x-2"
+            >
               <span className="text-xl font-bold bg-gradient-to-r from-primary to-purple-600 bg-clip-text text-transparent">
                 SatuDev
               </span>
@@ -60,25 +98,36 @@ export default function Header() {
 
           <nav className="hidden md:flex items-center space-x-6">
             <Link
+              href="#home"
+              onClick={(e) => handleNavClick(e, '#home')}
+              className="text-sm font-medium text-slate-700 hover:text-primary dark:text-slate-200 dark:hover:text-primary"
+            >
+              {t("nav.home")}
+            </Link>
+            <Link
               href="#services"
+              onClick={(e) => handleNavClick(e, '#services')}
               className="text-sm font-medium text-slate-700 hover:text-primary dark:text-slate-200 dark:hover:text-primary"
             >
               {t("nav.services")}
             </Link>
             <Link
               href="#portfolio"
+              onClick={(e) => handleNavClick(e, '#portfolio')}
               className="text-sm font-medium text-slate-700 hover:text-primary dark:text-slate-200 dark:hover:text-primary"
             >
               {t("nav.portfolio")}
             </Link>
             <Link
               href="#about"
+              onClick={(e) => handleNavClick(e, '#about')}
               className="text-sm font-medium text-slate-700 hover:text-primary dark:text-slate-200 dark:hover:text-primary"
             >
               {t("nav.about")}
             </Link>
             <Link
               href="#contact"
+              onClick={(e) => handleNavClick(e, '#contact')}
               className="text-sm font-medium text-slate-700 hover:text-primary dark:text-slate-200 dark:hover:text-primary"
             >
               {t("nav.contact")}
@@ -126,30 +175,37 @@ export default function Header() {
           </div>
           <nav className="flex flex-col items-center space-y-8 p-8 bg-white dark:bg-slate-900">
             <Link
-              href="#services"
+              href="#home"
+              onClick={(e) => handleNavClick(e, '#home')}
               className="text-lg font-medium text-slate-700 hover:text-primary dark:text-slate-200 dark:hover:text-primary"
-              onClick={() => setIsMenuOpen(false)}
+            >
+              {t("nav.home")}
+            </Link>
+            <Link
+              href="#services"
+              onClick={(e) => handleNavClick(e, '#services')}
+              className="text-lg font-medium text-slate-700 hover:text-primary dark:text-slate-200 dark:hover:text-primary"
             >
               {t("nav.services")}
             </Link>
             <Link
               href="#portfolio"
+              onClick={(e) => handleNavClick(e, '#portfolio')}
               className="text-lg font-medium text-slate-700 hover:text-primary dark:text-slate-200 dark:hover:text-primary"
-              onClick={() => setIsMenuOpen(false)}
             >
               {t("nav.portfolio")}
             </Link>
             <Link
               href="#about"
+              onClick={(e) => handleNavClick(e, '#about')}
               className="text-lg font-medium text-slate-700 hover:text-primary dark:text-slate-200 dark:hover:text-primary"
-              onClick={() => setIsMenuOpen(false)}
             >
               {t("nav.about")}
             </Link>
             <Link
               href="#contact"
+              onClick={(e) => handleNavClick(e, '#contact')}
               className="text-lg font-medium text-slate-700 hover:text-primary dark:text-slate-200 dark:hover:text-primary"
-              onClick={() => setIsMenuOpen(false)}
             >
               {t("nav.contact")}
             </Link>
