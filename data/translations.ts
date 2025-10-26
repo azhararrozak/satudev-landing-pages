@@ -189,7 +189,7 @@ export const translations = {
     "contact.form.emailPlaceholder": "email@anda.com",
     "contact.form.subjectPlaceholder": "Masukkan Subjek",
     "contact.form.messagePlaceholder": "Ceritakan tentang proyek Anda...",
-    "contact.followUs": "Ikuti Kami",
+    "contact.followUs": "Ikuti Kami di Media Sosial",
 
     // Projects Page
     "projects.title": "Proyek",

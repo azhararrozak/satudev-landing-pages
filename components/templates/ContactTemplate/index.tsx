@@ -1,7 +1,7 @@
 "use client"
 
 import React from 'react'
-import { Mail, Phone, MapPin } from 'lucide-react'
+import { Mail, MapPin } from 'lucide-react'
 import Link from 'next/link'
 import FormContact from '@/components/organisms/FormContact'
 import { useLanguage } from '@/components/providers/LanguageProvider'
@@ -47,7 +47,7 @@ export default function ContactTemplate() {
                     <p className="text-muted-foreground">satudev.solution@gmail.com</p>
                   </div>
                 </div>
-                <div className="flex items-start gap-4">
+                {/* <div className="flex items-start gap-4">
                   <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10">
                     <Phone className="h-5 w-5 text-primary" />
                   </div>
@@ -55,7 +55,7 @@ export default function ContactTemplate() {
                     <h3 className="font-bold">{t("contact.phone")}</h3>
                     <p className="text-muted-foreground">(+62) 82241986504 </p>
                   </div>
-                </div>
+                </div> */}
                 <div className="flex items-start gap-4">
                   <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10">
                     <MapPin className="h-5 w-5 text-primary" />
@@ -65,21 +65,24 @@ export default function ContactTemplate() {
                     <p className="text-muted-foreground">Jalan Pagenjahan, Adiwerna, Tegal</p>
                   </div>
                 </div>
-                <div className="mt-6 text-center">
-                  <h3 className="font-bold mb-2">{t("contact.followUs")}</h3>
-                  <div className="flex gap-4 items-center justify-center">
-                    <Link href="https://www.instagram.com/satudev.solution" target="_blank" rel="noopener noreferrer" className="text-muted-foreground hover:text-primary transition-colors">
-                      <InstagramIcon />
-                    </Link>
-                    <Link href="https://www.tiktok.com/@satudev_solution" target="_blank" rel="noopener noreferrer" className="text-muted-foreground hover:text-primary transition-colors">
-                      <TikTokIcon />
-                    </Link>
-                  </div>
-                </div>
+                
               </div>
               <div className="rounded-lg border bg-background p-6 shadow-lg">
                 <FormContact />
               </div>
+              <div className="mt-6 text-center sm:text-left">
+                  <h3 className="font-bold mb-2">{t("contact.followUs")}</h3>
+                  <div className="flex flex-row sm:flex-col gap-4 items-center sm:items-start justify-center sm:justify-start">
+                    <Link href="https://www.instagram.com/satudev.solution" target="_blank" rel="noopener noreferrer" className="sm:flex pl-3 items-center gap-4 text-muted-foreground hover:text-primary transition-colors">
+                      <InstagramIcon />
+                      <span className="hidden sm:flex">Instagram</span>
+                    </Link>
+                    <Link href="https://www.tiktok.com/@satudev_solution" target="_blank" rel="noopener noreferrer" className="sm:flex pl-3 items-center gap-4 text-muted-foreground hover:text-primary transition-colors">
+                      <TikTokIcon />
+                      <span className="hidden sm:flex">TikTok</span>
+                    </Link>
+                  </div>
+                </div>
             </div>
           </div>
         </section>
