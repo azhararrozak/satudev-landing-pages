@@ -11,7 +11,7 @@
  */
 
 import React, { useMemo, useState } from "react"
-import projectsData from "../../data/PortofolioData"
+import { usePortfolio } from "@/data/PortofolioData"
 import ProjectCard from "../../components/organisms/ProjectCard"
 import { paginate } from "../../lib/utils"
 import { useLanguage } from "@/components/providers/LanguageProvider"
@@ -30,6 +30,8 @@ export default function ProjectPages() {
   const { t } = useLanguage()
   const [selectedCategory, setSelectedCategory] = useState<string>("all")
   const [page, setPage] = useState<number>(1)
+
+  const projectsData: Project[] = usePortfolio()
 
   const categories = useMemo(() => {
     const set = new Set<string>()
