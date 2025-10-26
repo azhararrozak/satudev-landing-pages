@@ -5,6 +5,7 @@ import Image from "next/image";
 import { usePortfolio } from "@/data/PortofolioData";
 import Link from "next/link";
 import { useLanguage } from "@/components/providers/LanguageProvider";
+import { motion } from "framer-motion";
 
 export default function PortofolioTemplate() {
   const { t } = useLanguage()
@@ -16,6 +17,28 @@ export default function PortofolioTemplate() {
   ];
 
   const projects = usePortfolio();
+
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.1
+      }
+    }
+  };
+
+  const itemVariants = {
+    hidden: { opacity: 0, y: 20 },
+    visible: {
+      opacity: 1,
+      y: 0,
+      transition: {
+        duration: 0.5,
+        ease: [0.22, 1, 0.36, 1] as const
+      }
+    }
+  };
 
   return (
     <section id="portfolio" className="w-full py-12 md:py-24 lg:py-32">
@@ -49,7 +72,13 @@ export default function PortofolioTemplate() {
           </div>
           {categories.map((category) => (
             <TabsContent key={category.id} value={category.id}>
-              <div className="grid gap-6 pt-10 md:grid-cols-2 lg:grid-cols-3">
+              <motion.div 
+                className="grid gap-6 pt-10 md:grid-cols-2 lg:grid-cols-3"
+                variants={containerVariants}
+                initial="hidden"
+                whileInView="visible"
+                viewport={{ once: true, amount: 0.1 }}
+              >
                 {projects
                   .filter((project) =>
                     category.id === "all"
@@ -57,8 +86,9 @@ export default function PortofolioTemplate() {
                       : project.category === category.id
                   )
                   .map((project, index) => (
-                    <div
+                    <motion.div
                       key={index}
+                      variants={itemVariants}
                       className="group relative overflow-hidden rounded-lg border"
                     >
                       <div className="aspect-video overflow-hidden">
@@ -86,9 +116,9 @@ export default function PortofolioTemplate() {
                           ))}
                         </div>
                       </div>
-                    </div>
+                    </motion.div>
                   ))}
-              </div>
+              </motion.div>
             </TabsContent>
           ))}
         </Tabs>

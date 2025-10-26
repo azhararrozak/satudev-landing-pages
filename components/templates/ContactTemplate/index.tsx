@@ -5,6 +5,7 @@ import { Mail, MapPin } from 'lucide-react'
 import Link from 'next/link'
 import FormContact from '@/components/organisms/FormContact'
 import { useLanguage } from '@/components/providers/LanguageProvider'
+import { motion } from 'framer-motion'
 
 // Simple Icons SVG Component
 const InstagramIcon = () => (
@@ -22,6 +23,29 @@ const TikTokIcon = () => (
 export default function ContactTemplate() {
   const { t } = useLanguage();
 
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.15,
+        delayChildren: 0.1
+      }
+    }
+  };
+
+  const itemVariants = {
+    hidden: { opacity: 0, y: 20 },
+    visible: {
+      opacity: 1,
+      y: 0,
+      transition: {
+        duration: 0.5,
+        ease: [0.22, 1, 0.36, 1] as const
+      }
+    }
+  };
+
   return (
     <section id="contact" className="w-full py-12 md:py-24 lg:py-32 bg-muted">
           <div className="container px-4 md:px-6">
@@ -36,9 +60,15 @@ export default function ContactTemplate() {
                 </p>
               </div>
             </div>
-            <div className="mx-auto grid max-w-5xl gap-6 py-12 lg:grid-cols-2">
+            <motion.div 
+              className="mx-auto grid max-w-5xl gap-6 py-12 lg:grid-cols-2"
+              variants={containerVariants}
+              initial="hidden"
+              whileInView="visible"
+              viewport={{ once: true, amount: 0.1 }}
+            >
               <div className="flex flex-col gap-4">
-                <div className="flex items-start gap-4">
+                <motion.div variants={itemVariants} className="flex items-start gap-4">
                   <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10">
                     <Mail className="h-5 w-5 text-primary" />
                   </div>
@@ -46,7 +76,7 @@ export default function ContactTemplate() {
                     <h3 className="font-bold">{t("contact.form.email")}</h3>
                     <p className="text-muted-foreground">satudev.solution@gmail.com</p>
                   </div>
-                </div>
+                </motion.div>
                 {/* <div className="flex items-start gap-4">
                   <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10">
                     <Phone className="h-5 w-5 text-primary" />
@@ -56,7 +86,7 @@ export default function ContactTemplate() {
                     <p className="text-muted-foreground">(+62) 82241986504 </p>
                   </div>
                 </div> */}
-                <div className="flex items-start gap-4">
+                <motion.div variants={itemVariants} className="flex items-start gap-4">
                   <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10">
                     <MapPin className="h-5 w-5 text-primary" />
                   </div>
@@ -64,13 +94,13 @@ export default function ContactTemplate() {
                     <h3 className="font-bold">{t("contact.office")}</h3>
                     <p className="text-muted-foreground">Jalan Pagenjahan, Adiwerna, Tegal</p>
                   </div>
-                </div>
+                </motion.div>
                 
               </div>
-              <div className="rounded-lg border bg-background p-6 shadow-lg">
+              <motion.div variants={itemVariants} className="rounded-lg border bg-background p-6 shadow-lg">
                 <FormContact />
-              </div>
-              <div className="mt-6 text-center sm:text-left">
+              </motion.div>
+              <motion.div variants={itemVariants} className="mt-6 text-center sm:text-left">
                   <h3 className="font-bold mb-2">{t("contact.followUs")}</h3>
                   <div className="flex flex-row sm:flex-col gap-4 items-center sm:items-start justify-center sm:justify-start">
                     <Link href="https://www.instagram.com/satudev.solution" target="_blank" rel="noopener noreferrer" className="sm:flex pl-3 items-center gap-4 text-muted-foreground hover:text-primary transition-colors">
@@ -82,8 +112,8 @@ export default function ContactTemplate() {
                       <span className="hidden sm:flex">TikTok</span>
                     </Link>
                   </div>
-                </div>
-            </div>
+                </motion.div>
+            </motion.div>
           </div>
         </section>
   )

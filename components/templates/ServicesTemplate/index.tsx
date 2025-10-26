@@ -3,10 +3,34 @@
 import Card from "@/components/organisms/CardServices";
 import { useServices } from "@/data/ServicesData";
 import { useLanguage } from "@/components/providers/LanguageProvider";
+import { motion } from "framer-motion";
 
 export default function ServicesTemplate() {
   const { t } = useLanguage()
   const services = useServices();
+
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.3,
+        delayChildren: 0.2
+      }
+    }
+  };
+
+  const itemVariants = {
+    hidden: { opacity: 0, x: 50 },
+    visible: {
+      opacity: 1,
+      x: 0,
+      transition: {
+        duration: 0.6,
+        ease: [0.22, 1, 0.36, 1] as const
+      }
+    }
+  };
 
   return (
     <section
@@ -28,19 +52,29 @@ export default function ServicesTemplate() {
           </p>
         </div>
       </div>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-8 my-16">
+      <motion.div 
+        className="grid grid-cols-1 md:grid-cols-2 gap-8 my-16"
+        variants={containerVariants}
+        initial="hidden"
+        whileInView="visible"
+        viewport={{ once: true, amount: 0.2 }}
+      >
         {services.map((service, i) => (
-          <Card
+          <motion.div 
             key={i}
-            title={service.title}
-            description={service.description}
-            icon={service.icon}
-            features={service.features}
-            image={service.image}
+            variants={itemVariants}
             className={i === 2 ? "md:col-span-2" : ""}
-          />
+          >
+            <Card
+              title={service.title}
+              description={service.description}
+              icon={service.icon}
+              features={service.features}
+              image={service.image}
+            />
+          </motion.div>
         ))}
-      </div>
+      </motion.div>
     </div>
   </section>
   )

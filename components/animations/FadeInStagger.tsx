@@ -29,7 +29,7 @@ export default function FadeInStagger({
       variants={containerVariants}
       initial="hidden"
       whileInView="visible"
-      viewport={{ once: true, margin: "-50px" }}
+      viewport={{ once: true, margin: "0px", amount: 0.1 }}
       className={className}
     >
       {children}

@@ -15,13 +15,13 @@ export default function Home() {
       <ScrollReveal>
         <ServiceTemplate />
       </ScrollReveal>
-      <ScrollReveal delay={0.2}>
+      <ScrollReveal>
         <PortofolioTemplate />
       </ScrollReveal>
-      <ScrollReveal delay={0.2}>
+      <ScrollReveal>
         <AboutTemplate />
       </ScrollReveal>
-      <ScrollReveal delay={0.2}>
+      <ScrollReveal>
         <ContactTemplate />
       </ScrollReveal>
       <Footer />

@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
+import { useRouter, usePathname } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Moon, Sun, Menu, X } from "lucide-react";
 import Image from "next/image";
@@ -11,6 +12,8 @@ export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isDarkMode, setIsDarkMode] = useState(false);
   const { language, setLanguage, t } = useLanguage();
+  const router = useRouter();
+  const pathname = usePathname();
 
   useEffect(() => {
     // Check for dark mode preference
@@ -47,6 +50,19 @@ export default function Header() {
     e.preventDefault();
     const targetId = href.replace('#', '');
     
+    // Check if we're not on the home page
+    if (pathname !== '/') {
+      // Navigate to home page with section anchor
+      if (targetId === 'home' || targetId === '') {
+        router.push('/');
+      } else {
+        router.push(`/#${targetId}`);
+      }
+      setIsMenuOpen(false);
+      return;
+    }
+    
+    // We're on the home page, do smooth scroll
     if (targetId === 'home' || targetId === '') {
       // Scroll to top
       window.scrollTo({
@@ -82,14 +98,12 @@ export default function Header() {
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex h-16 items-center justify-between">
           <div className="flex items-center">
-            <div>
-            <Image src="/SatuDev.png" className="px-2" alt="SatuDev" width={60} height={60} />
-            </div>
+            
             <Link 
-              href="/#home" 
-              onClick={(e) => handleNavClick(e, '#home')}
+              href="/" 
               className="flex items-center space-x-2"
             >
+              <Image src="/SatuDev.png" alt="SatuDev" width={35} height={35} />
               <span className="text-xl font-bold bg-gradient-to-r from-primary to-purple-600 bg-clip-text text-transparent">
                 SatuDev
               </span>

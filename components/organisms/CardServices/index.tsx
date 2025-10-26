@@ -7,7 +7,6 @@ interface CardProps {
   icon?: React.ReactNode;
   features?: string[];
   image?: string;
-  className?: string;
 }
 
 export default function CardServices({
@@ -16,15 +15,14 @@ export default function CardServices({
   icon,
   features,
   image,
-  className = "",
 }: CardProps) {
   return (
-    <div className={`${className} group relative bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-800 dark:to-slate-900 rounded-2xl overflow-hidden shadow-lg hover:shadow-xl transition-all duration-300`}>
+    <div className="group relative bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-800 dark:to-slate-900 rounded-2xl overflow-hidden shadow-lg hover:shadow-xl transition-all duration-300 h-full">
       <div className="absolute inset-0 z-0">
         <Image
           src={image || "/placeholder.svg"}
           alt={title}
-          layout="fill"
+          fill
           className="object-cover object-center group-hover:scale-105 transition-transform duration-300"
         />
         <div className="absolute inset-0 bg-gradient-to-t from-slate-900/90 via-slate-900/60 to-slate-900/30" />
