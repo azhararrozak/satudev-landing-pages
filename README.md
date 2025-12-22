@@ -2,7 +2,21 @@ This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-
 
 ## Getting Started
 
-First, run the development server:
+### 1. Install Dependencies
+
+```bash
+npm install
+```
+
+### 2. Setup Database
+
+Follow the instructions in [DATABASE_SETUP.md](DATABASE_SETUP.md) to configure your database.
+
+**Quick setup:**
+1. Create `.env.local` with your `DATABASE_URL`
+2. Run `npm run db:push` to create tables
+
+### 3. Run Development Server
 
 ```bash
 npm run dev
