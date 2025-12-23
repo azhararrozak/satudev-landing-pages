@@ -10,6 +10,7 @@ export const translations = {
     "nav.contact": "Contact",
     "nav.getStarted": "Get Started",
     "nav.projects": "Projects",
+    "nav.Login": "Login",
 
     // Hero Section
     "hero.title": "Build Your Digital Future",
@@ -114,6 +115,7 @@ export const translations = {
     "nav.contact": "Kontak",
     "nav.getStarted": "Mulai Sekarang",
     "nav.projects": "Proyek",
+    "nav.Login": "Masuk",
 
     // Hero Section
     "hero.title": "Bangun Masa Depan Digital Anda",

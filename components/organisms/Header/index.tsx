@@ -7,6 +7,8 @@ import { Button } from "@/components/ui/button";
 import { Moon, Sun, Menu, X } from "lucide-react";
 import Image from "next/image";
 import { useLanguage } from "@/components/providers/LanguageProvider";
+import { useUser } from "@/lib/hooks/use-auth";
+import { UserMenuHomepage } from "@/components/auth/UserMenuHomepage";
 
 export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -14,6 +16,7 @@ export default function Header() {
   const { language, setLanguage, t } = useLanguage();
   const router = useRouter();
   const pathname = usePathname();
+  const { user, isAuthenticated } = useUser();
 
   useEffect(() => {
     // Check for dark mode preference
@@ -177,6 +180,22 @@ export default function Header() {
               <Menu className="h-6 w-6" />
             </Button>
           </div>
+
+          {/* Auth Section */}
+          <div className="hidden md:flex ml-4 items-center gap-3">
+            {isAuthenticated && user ? (
+              <UserMenuHomepage />
+            ) : (
+              <Link href="/auth/signin">
+                <Button
+                  variant="default"
+                  className="bg-gradient-to-r from-primary to-purple-600 hover:from-primary/90 hover:to-purple-600/90"
+                >
+                  {t("nav.Login")}
+                </Button>
+              </Link>
+            )}
+          </div>
         </div>
       </div>
 
@@ -223,13 +242,20 @@ export default function Header() {
             >
               {t("nav.contact")}
             </Link>
-            <Button
-              variant="default"
-              className="bg-gradient-to-r from-primary to-purple-600 hover:from-primary/90 hover:to-purple-600/90 w-full"
-              onClick={() => setIsMenuOpen(false)}
-            >
-              {t("nav.getStarted")}
-            </Button>
+            {isAuthenticated && user ? (
+              <div className="w-full">
+                <UserMenuHomepage />
+              </div>
+            ) : (
+              <Link href="/auth/signin" className="w-full">
+                <Button
+                  variant="default"
+                  className="w-full bg-gradient-to-r from-primary to-purple-600 hover:from-primary/90 hover:to-purple-600/90"
+                >
+                  {t("nav.Login")}
+                </Button>
+              </Link>
+            )}
           </nav>
         </div>
       )}
