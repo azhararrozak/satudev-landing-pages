@@ -37,12 +37,12 @@ export default function ProjectPages() {
     const set = new Set<string>()
     projectsData.forEach((p) => p.category && set.add(p.category))
     return ["all", ...Array.from(set)]
-  }, [])
+  }, [projectsData])
 
   const filtered = useMemo(() => {
     if (selectedCategory === "all") return projectsData
     return projectsData.filter((p) => p.category === selectedCategory)
-  }, [selectedCategory])
+  }, [selectedCategory, projectsData])
 
   const pageData = useMemo(() => paginate(filtered, page, PER_PAGE), [filtered, page])
 

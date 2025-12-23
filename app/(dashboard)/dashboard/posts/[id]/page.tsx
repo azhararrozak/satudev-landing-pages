@@ -1,9 +1,9 @@
 type PageProps = {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 };
 
-export default function PostDetailPage({ params }: PageProps) {
-  const { id } = params;
+export default async function PostDetailPage({ params }: PageProps) {
+  const { id } = await params;
 
   return (
     <div className="space-y-4">
