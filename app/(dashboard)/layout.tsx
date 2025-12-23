@@ -2,8 +2,11 @@
 
 import Link from "next/link";
 import type { ReactNode } from "react";
+import { useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { LogoutButton } from "@/components/auth/LogoutButton";
 import { UserMenu } from "@/components/auth/UserMenu";
+import { useUser } from "@/lib/hooks/use-auth";
 
 const nav = [
   { href: "/dashboard", label: "Home" },
@@ -13,6 +16,36 @@ const nav = [
 ];
 
 export default function DashboardLayout({ children }: { children: ReactNode }) {
+  const { user, isAuthenticated, isLoading } = useUser();
+  const router = useRouter();
+
+  useEffect(() => {
+    // Wait for auth to load
+    if (isLoading) return;
+
+    // Redirect if not authenticated
+    if (!isAuthenticated) {
+      router.push('/auth/signin');
+      return;
+    }
+
+    // Redirect regular users to homepage (only admin and penulis can access dashboard)
+    if (user && user.role === 'user') {
+      router.push('/');
+    }
+  }, [isAuthenticated, user, isLoading, router]);
+
+  // Show loading state while checking auth
+  if (isLoading || !isAuthenticated || !user || user.role === 'user') {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-slate-900 mx-auto"></div>
+          <p className="mt-4 text-slate-600">Loading...</p>
+        </div>
+      </div>
+    );
+  }
   return (
     <div className="min-h-screen bg-slate-50 text-slate-900">
       {/* Topbar */}
