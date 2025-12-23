@@ -6,7 +6,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import FormInput from "@/components/organisms/FormInput";
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
-
+import { useAuthStore } from "@/lib/stores/auth-store";
 import { toast } from "sonner";
 import Link from "next/link";
 import { authClient as client } from "@/lib/auth-client";
@@ -28,6 +28,7 @@ const SignInPage = () => {
     resolver: zodResolver(SignInSchema),
   });
   const router = useRouter();
+  const { setUser, setSession } = useAuthStore();
 
   const onSubmit = async (data: SignInForm) => {
     setIsLoading(true);
@@ -46,7 +47,48 @@ const SignInPage = () => {
             toast.error(ctx.error.message);
           },
           onSuccess: async () => {
-            router.replace("/dashboard");
+            // Get session immediately
+            const session = await client.getSession();
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            const sessionData = session as any;
+            
+            // Update Zustand store immediately
+            if (sessionData?.data?.user && sessionData?.data?.session) {
+              setUser({
+                id: sessionData.data.user.id,
+                name: sessionData.data.user.name,
+                email: sessionData.data.user.email,
+                emailVerified: sessionData.data.user.emailVerified,
+                image: sessionData.data.user.image || undefined,
+                role: sessionData.data.user.role || 'user',
+                createdAt: new Date(sessionData.data.user.createdAt),
+                updatedAt: new Date(sessionData.data.user.updatedAt),
+              });
+              
+              setSession({
+                id: sessionData.data.session.id,
+                expiresAt: new Date(sessionData.data.session.expiresAt),
+                token: sessionData.data.session.token,
+                userId: sessionData.data.session.userId,
+              });
+            }
+            
+            const userRole = sessionData?.data?.user?.role || 'user';
+            
+            toast.success("Successfully signed in!");
+            
+            // Small delay to ensure state update propagates
+            await new Promise(resolve => setTimeout(resolve, 100));
+            
+            // Trigger auth sync event for other components
+            window.dispatchEvent(new Event('auth-change'));
+            
+            // Redirect based on role
+            if (userRole === 'admin' || userRole === 'penulis') {
+              router.push("/dashboard");
+            } else {
+              router.push("/");
+            }
           },
         },
       });
