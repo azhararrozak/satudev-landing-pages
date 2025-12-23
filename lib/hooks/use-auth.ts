@@ -46,6 +46,7 @@ export function useAuthSync() {
             email: sessionData.data.user.email,
             emailVerified: sessionData.data.user.emailVerified,
             image: sessionData.data.user.image || undefined,
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             role: (sessionData.data.user.role as any) || 'user',
             createdAt: new Date(sessionData.data.user.createdAt),
             updatedAt: new Date(sessionData.data.user.updatedAt),
@@ -71,7 +72,32 @@ export function useAuthSync() {
       }
     };
 
+    // Initial sync
     syncAuth();
+
+    // Listen for storage changes (cross-tab sync)
+    const handleStorageChange = (e: StorageEvent) => {
+      if (e.key === 'auth-storage') {
+        syncAuth();
+      }
+    };
+
+    // Listen for custom auth events
+    const handleAuthChange = () => {
+      syncAuth();
+    };
+
+    window.addEventListener('storage', handleStorageChange);
+    window.addEventListener('auth-change', handleAuthChange);
+
+    // Periodic sync every 30 seconds to check session validity
+    const intervalId = setInterval(syncAuth, 30000);
+
+    return () => {
+      window.removeEventListener('storage', handleStorageChange);
+      window.removeEventListener('auth-change', handleAuthChange);
+      clearInterval(intervalId);
+    };
   }, [setUser, setSession, setLoading]);
 }
 
