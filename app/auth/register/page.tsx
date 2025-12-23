@@ -46,7 +46,7 @@ const RegisterPage = () => {
             toast.error(ctx.error.message);
           },
           onSuccess: async () => {
-            router.replace("/");
+            router.replace("/auth/signin");
           },
         },
       });

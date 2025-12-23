@@ -8,7 +8,7 @@ import { Moon, Sun, Menu, X } from "lucide-react";
 import Image from "next/image";
 import { useLanguage } from "@/components/providers/LanguageProvider";
 import { useUser } from "@/lib/hooks/use-auth";
-import { UserRoleBadge } from "@/components/auth/UserRoleBadge";
+import { UserMenuHomepage } from "@/components/auth/UserMenuHomepage";
 
 export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -184,21 +184,7 @@ export default function Header() {
           {/* Auth Section */}
           <div className="hidden md:flex ml-4 items-center gap-3">
             {isAuthenticated && user ? (
-              <Link href="/dashboard" className="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">
-                {user.image && (
-                  <Image
-                    src={user.image}
-                    alt={user.name}
-                    width={32}
-                    height={32}
-                    className="rounded-full"
-                  />
-                )}
-                <div className="flex flex-col items-start">
-                  <span className="text-sm font-medium text-slate-900 dark:text-slate-100">{user.name}</span>
-                  <UserRoleBadge />
-                </div>
-              </Link>
+              <UserMenuHomepage />
             ) : (
               <Link href="/auth/signin">
                 <Button
@@ -257,24 +243,9 @@ export default function Header() {
               {t("nav.contact")}
             </Link>
             {isAuthenticated && user ? (
-              <Link href="/dashboard" className="w-full flex flex-col items-center gap-3 p-4 rounded-lg bg-slate-100 dark:bg-slate-800">
-                {user.image && (
-                  <Image
-                    src={user.image}
-                    alt={user.name}
-                    width={48}
-                    height={48}
-                    className="rounded-full"
-                  />
-                )}
-                <div className="flex flex-col items-center">
-                  <span className="text-base font-medium text-slate-900 dark:text-slate-100">{user.name}</span>
-                  <span className="text-sm text-slate-600 dark:text-slate-400">{user.email}</span>
-                  <div className="mt-2">
-                    <UserRoleBadge />
-                  </div>
-                </div>
-              </Link>
+              <div className="w-full">
+                <UserMenuHomepage />
+              </div>
             ) : (
               <Link href="/auth/signin" className="w-full">
                 <Button

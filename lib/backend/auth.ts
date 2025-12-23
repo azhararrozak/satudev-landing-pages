@@ -5,7 +5,7 @@ import * as schema from '@/schema/auth-schema'
 
 export const auth = betterAuth({
   database: drizzleAdapter(db, {
-    provider: "pg", // or "pg" or "mysql"
+    provider: "pg",
     schema,
     usePlural: true,
   }),
@@ -13,5 +13,15 @@ export const auth = betterAuth({
     enabled: true,
     requireEmailVerification: false
   },
+  // Add additional field 'role' to the user model
+  user: {
+    additionalFields: {
+      role: {
+        type: "string",
+        defaultValue: "user",
+        required: true,
+      }
+    }
+  }
 });
 
