@@ -1,5 +1,29 @@
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
+## Features
+
+✨ **Modern Stack**
+- Next.js 15.2 with App Router
+- TypeScript for type safety
+- Tailwind CSS 4 for styling
+- Framer Motion for animations
+
+🔐 **Authentication & Authorization**
+- Better Auth integration
+- Role-Based Access Control (RBAC)
+- 3 User Roles: Admin, Penulis, User
+- Zustand for state management
+
+📊 **Database**
+- Neon PostgreSQL
+- Drizzle ORM
+- Automated migrations
+
+🎨 **UI Components**
+- Radix UI primitives
+- shadcn/ui components
+- Responsive design
+
 ## Getting Started
 
 ### 1. Install Dependencies
@@ -20,19 +44,39 @@ Follow the instructions in [DATABASE_SETUP.md](DATABASE_SETUP.md) to configure y
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Documentation
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+- 📖 [Database Setup](DATABASE_SETUP.md) - Database configuration guide
+- 🔒 [RBAC Guide](RBAC_GUIDE.md) - Role-Based Access Control documentation
+- 🤝 [Contributing](CONTRIBUTING.md) - Development guide
+
+## Role-Based Access Control
+
+This project implements RBAC with three roles:
+
+- **Admin** - Full system access
+- **Penulis** (Writer) - Can create and edit content  
+- **User** - Basic access
+
+Quick example:
+
+```tsx
+import { AdminOnly, ContentCreatorOnly } from '@/components/auth/RoleGuard';
+
+<AdminOnly>
+  <button>Admin Only Button</button>
+</AdminOnly>
+
+<ContentCreatorOnly>
+  <button>Create Content</button>
+</ContentCreatorOnly>
+```
+
+See [RBAC_GUIDE.md](RBAC_GUIDE.md) for complete documentation.
 
 ## Learn More
 

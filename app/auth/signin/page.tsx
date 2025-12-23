@@ -6,34 +6,34 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import FormInput from "@/components/organisms/FormInput";
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
+
 import { toast } from "sonner";
 import Link from "next/link";
 import { authClient as client } from "@/lib/auth-client";
 
-const RegisterSchema = z.object({
+const SignInSchema = z.object({
   email: z.string().email("Invalid email address").min(1, "Email is required"),
   password: z.string().min(6, "Password must be at least 6 characters"),
-  name: z.string().min(1, "Name is required"),
 });
 
-type RegisterForm = z.infer<typeof RegisterSchema>;
+type SignInForm = z.infer<typeof SignInSchema>;
 
-const RegisterPage = () => {
+const SignInPage = () => {
   const [isLoading, setIsLoading] = useState(false);
   const {
     register,
     handleSubmit,
     formState: { errors },
-  } = useForm<RegisterForm>({
-    resolver: zodResolver(RegisterSchema),
+  } = useForm<SignInForm>({
+    resolver: zodResolver(SignInSchema),
   });
   const router = useRouter();
 
-  const onSubmit = async (data: RegisterForm) => {
+  const onSubmit = async (data: SignInForm) => {
     setIsLoading(true);
 
     try {
-      await client.signUp.email({
+      await client.signIn.email({
         ...data,
         fetchOptions: {
           onResponse: () => {
@@ -46,12 +46,12 @@ const RegisterPage = () => {
             toast.error(ctx.error.message);
           },
           onSuccess: async () => {
-            router.replace("/");
+            router.replace("/dashboard");
           },
         },
       });
     } catch (error) {
-      console.error("An error occurred during registration:", error);
+      console.error("An error occurred during sign-in:", error);
     } finally {
       setIsLoading(false);
     }
@@ -59,7 +59,7 @@ const RegisterPage = () => {
 
   return (
     <div className="flex items-center justify-center min-h-screen w-full bg-gradient-to-b from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800">
-      <div className="max-w-md w-full mx-auto p-8 border border-slate-200 dark:border-slate-700 rounded-2xl shadow-xl bg-white dark:bg-slate-800/50 backdrop-blur">
+      <div className="max-w-md mx-auto w-full p-8 border border-slate-200 dark:border-slate-700 rounded-2xl shadow-xl bg-white dark:bg-slate-800/50 backdrop-blur">
         {/* Back to Home Link */}
         <Link 
           href="/" 
@@ -72,17 +72,10 @@ const RegisterPage = () => {
         </Link>
         
         <div className="mb-8 text-center">
-          <h1 className="text-3xl font-bold text-slate-900 dark:text-white mb-2">Create Account</h1>
-          <p className="text-slate-600 dark:text-slate-400">Sign up to get started</p>
+          <h1 className="text-3xl font-bold text-slate-900 dark:text-white mb-2">Welcome Back</h1>
+          <p className="text-slate-600 dark:text-slate-400">Sign in to your account</p>
         </div>
         <form onSubmit={handleSubmit(onSubmit)}>
-          <FormInput
-            label="Name"
-            name="name"
-            type="text"
-            register={register}
-            errors={errors}
-          />
           <FormInput
             label="Email"
             name="email"
@@ -104,14 +97,14 @@ const RegisterPage = () => {
             className="w-full mt-4"
             disabled={isLoading}
           >
-            {isLoading ? "Registering..." : "Register"}
+            {isLoading ? "Signing In..." : "Sign In"}
           </Button>
         </form>
         <div className="mt-6 text-center">
           <p className="text-sm text-slate-600 dark:text-slate-400">
-            Already have an account?{" "}
-            <Link href="/auth/signin" className="font-medium text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 transition">
-              Sign in
+            Need to create an account?{" "}
+            <Link href="/auth/register" className="font-medium text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 transition">
+              Sign up
             </Link>
           </p>
         </div>
@@ -120,4 +113,4 @@ const RegisterPage = () => {
   );
 };
 
-export default RegisterPage;
+export default SignInPage;

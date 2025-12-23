@@ -7,6 +7,8 @@ import { Button } from "@/components/ui/button";
 import { Moon, Sun, Menu, X } from "lucide-react";
 import Image from "next/image";
 import { useLanguage } from "@/components/providers/LanguageProvider";
+import { useUser } from "@/lib/hooks/use-auth";
+import { UserRoleBadge } from "@/components/auth/UserRoleBadge";
 
 export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -14,6 +16,7 @@ export default function Header() {
   const { language, setLanguage, t } = useLanguage();
   const router = useRouter();
   const pathname = usePathname();
+  const { user, isAuthenticated } = useUser();
 
   useEffect(() => {
     // Check for dark mode preference
@@ -177,6 +180,36 @@ export default function Header() {
               <Menu className="h-6 w-6" />
             </Button>
           </div>
+
+          {/* Auth Section */}
+          <div className="hidden md:flex ml-4 items-center gap-3">
+            {isAuthenticated && user ? (
+              <Link href="/dashboard" className="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">
+                {user.image && (
+                  <Image
+                    src={user.image}
+                    alt={user.name}
+                    width={32}
+                    height={32}
+                    className="rounded-full"
+                  />
+                )}
+                <div className="flex flex-col items-start">
+                  <span className="text-sm font-medium text-slate-900 dark:text-slate-100">{user.name}</span>
+                  <UserRoleBadge />
+                </div>
+              </Link>
+            ) : (
+              <Link href="/auth/signin">
+                <Button
+                  variant="default"
+                  className="bg-gradient-to-r from-primary to-purple-600 hover:from-primary/90 hover:to-purple-600/90"
+                >
+                  {t("nav.Login")}
+                </Button>
+              </Link>
+            )}
+          </div>
         </div>
       </div>
 
@@ -223,13 +256,35 @@ export default function Header() {
             >
               {t("nav.contact")}
             </Link>
-            <Button
-              variant="default"
-              className="bg-gradient-to-r from-primary to-purple-600 hover:from-primary/90 hover:to-purple-600/90 w-full"
-              onClick={() => setIsMenuOpen(false)}
-            >
-              {t("nav.getStarted")}
-            </Button>
+            {isAuthenticated && user ? (
+              <Link href="/dashboard" className="w-full flex flex-col items-center gap-3 p-4 rounded-lg bg-slate-100 dark:bg-slate-800">
+                {user.image && (
+                  <Image
+                    src={user.image}
+                    alt={user.name}
+                    width={48}
+                    height={48}
+                    className="rounded-full"
+                  />
+                )}
+                <div className="flex flex-col items-center">
+                  <span className="text-base font-medium text-slate-900 dark:text-slate-100">{user.name}</span>
+                  <span className="text-sm text-slate-600 dark:text-slate-400">{user.email}</span>
+                  <div className="mt-2">
+                    <UserRoleBadge />
+                  </div>
+                </div>
+              </Link>
+            ) : (
+              <Link href="/auth/signin" className="w-full">
+                <Button
+                  variant="default"
+                  className="w-full bg-gradient-to-r from-primary to-purple-600 hover:from-primary/90 hover:to-purple-600/90"
+                >
+                  {t("nav.Login")}
+                </Button>
+              </Link>
+            )}
           </nav>
         </div>
       )}

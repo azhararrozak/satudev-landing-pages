@@ -1,5 +1,9 @@
+'use client';
+
 import Link from "next/link";
 import type { ReactNode } from "react";
+import { LogoutButton } from "@/components/auth/LogoutButton";
+import { UserMenu } from "@/components/auth/UserMenu";
 
 const nav = [
   { href: "/dashboard", label: "Home" },
@@ -23,10 +27,7 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
           </div>
 
           <div className="flex items-center gap-3">
-            <button className="rounded-xl border bg-white px-3 py-2 text-sm hover:bg-slate-50">
-              Notifications
-            </button>
-            <div className="h-9 w-9 rounded-full bg-slate-200" />
+            <UserMenu />
           </div>
         </div>
       </header>
@@ -52,9 +53,9 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
           </nav>
 
           <div className="mt-3 border-t pt-3">
-            <button className="w-full rounded-xl bg-slate-900 px-3 py-2 text-sm font-medium text-white hover:bg-slate-800">
+            <LogoutButton className="w-full rounded-xl bg-slate-900 px-3 py-2 text-sm font-medium text-white hover:bg-slate-800 disabled:opacity-50 disabled:cursor-not-allowed">
               Logout
-            </button>
+            </LogoutButton>
           </div>
         </aside>
 

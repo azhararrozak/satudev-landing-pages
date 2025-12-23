@@ -32,6 +32,8 @@ satudev-landing-pages/
 - **Authentication:** Better Auth
 - **Database:** Neon PostgreSQL
 - **ORM:** Drizzle ORM
+- **State Management:** Zustand
+- **RBAC:** Role-Based Access Control (Admin, Penulis, User)
 - **UI Components:** Radix UI + shadcn/ui
 - **Forms:** React Hook Form + Zod
 - **Email:** EmailJS
@@ -83,11 +85,33 @@ satudev-landing-pages/
 
 The project uses Better Auth which requires three tables:
 
-1. **users** - User accounts
+1. **users** - User accounts (includes role field for RBAC)
 2. **sessions** - Authentication sessions
 3. **accounts** - OAuth provider accounts
 
 Schema is defined in `schema/auth-schema.ts`.
+
+## Role-Based Access Control (RBAC)
+
+The project implements RBAC with three roles:
+
+- **admin** - Full system access
+- **penulis** - Can create and edit content
+- **user** - Basic access
+
+See [RBAC_GUIDE.md](RBAC_GUIDE.md) for detailed documentation on:
+- Using authentication hooks
+- Protecting routes
+- Conditional rendering based on roles
+- Permission checks
+
+## State Management
+
+The project uses Zustand for state management:
+
+- **Auth Store** (`lib/stores/auth-store.ts`) - Manages authentication state
+- Persists to localStorage
+- Provides role-based helper methods
 
 ## Making Changes
 
