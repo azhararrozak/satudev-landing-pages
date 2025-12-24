@@ -52,6 +52,12 @@ const SignInPage = () => {
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
             const sessionData = session as any;
             
+            console.log('Sign in success - session data:', {
+              hasUser: !!sessionData?.data?.user,
+              hasSession: !!sessionData?.data?.session,
+              role: sessionData?.data?.user?.role
+            });
+            
             // Update Zustand store immediately
             if (sessionData?.data?.user && sessionData?.data?.session) {
               setUser({
@@ -71,17 +77,22 @@ const SignInPage = () => {
                 token: sessionData.data.session.token,
                 userId: sessionData.data.session.userId,
               });
+              
+              console.log('Zustand store updated with user role:', sessionData.data.user.role);
             }
             
             const userRole = sessionData?.data?.user?.role || 'user';
             
             toast.success("Successfully signed in!");
             
-            // Small delay to ensure state update propagates
-            await new Promise(resolve => setTimeout(resolve, 100));
+            // Longer delay in production to ensure cookies are set
+            const delay = process.env.NODE_ENV === 'production' ? 500 : 100;
+            await new Promise(resolve => setTimeout(resolve, delay));
             
             // Trigger auth sync event for other components
             window.dispatchEvent(new Event('auth-change'));
+            
+            console.log('Redirecting user with role:', userRole);
             
             // Redirect based on role
             if (userRole === 'admin' || userRole === 'penulis') {
