@@ -4,10 +4,13 @@ import type { NextRequest } from 'next/server';
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
-  // Get session token from cookies - Better Auth uses this cookie name
-  // Check both with and without dot prefix for compatibility
+  // Get session token from cookies
+  // In production (HTTPS), Better Auth uses __Secure- prefix
+  // In development (HTTP), it uses regular cookie name
   const sessionToken = 
-    request.cookies.get('better-auth.session_token')?.value ||
+    request.cookies.get('__Secure-better-auth.session_token')?.value || // Production (HTTPS)
+    request.cookies.get('better-auth.session_token')?.value ||          // Development (HTTP)
+    request.cookies.get('__Secure-better-auth.session-token')?.value ||
     request.cookies.get('better-auth.session-token')?.value ||
     request.cookies.get('better_auth_session_token')?.value;
   
