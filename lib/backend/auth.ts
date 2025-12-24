@@ -25,11 +25,26 @@ export const auth = betterAuth({
       }
     }
   },
+  // Session configuration for production
+  session: {
+    cookieCache: {
+      enabled: true,
+      maxAge: 5 * 60 // 5 minutes
+    }
+  },
   trustedOrigins: [
     "http://localhost:3000",
     "https://www.satudev.id",
     "https://satudev.id",
     process.env.NEXT_PUBLIC_APP_URL || ""
-  ].filter(Boolean)
+  ].filter(Boolean),
+  // Advanced session options
+  advanced: {
+    cookiePrefix: "better-auth",
+    generateId: false,
+    crossSubDomainCookies: {
+      enabled: true
+    }
+  }
 });
 

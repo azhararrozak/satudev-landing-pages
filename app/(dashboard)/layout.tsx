@@ -20,28 +20,55 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
   const router = useRouter();
 
   useEffect(() => {
+    // Debug logging
+    console.log('Dashboard Layout:', { isLoading, isAuthenticated, userRole: user?.role });
+
     // Wait for auth to load
     if (isLoading) return;
 
     // Redirect if not authenticated
     if (!isAuthenticated) {
-      router.push('/auth/signin');
+      console.log('Not authenticated, redirecting to signin');
+      router.push('/auth/signin?callbackUrl=/dashboard');
       return;
     }
 
     // Redirect regular users to homepage (only admin and penulis can access dashboard)
     if (user && user.role === 'user') {
+      console.log('User role is "user", redirecting to homepage');
       router.push('/');
     }
   }, [isAuthenticated, user, isLoading, router]);
 
   // Show loading state while checking auth
-  if (isLoading || !isAuthenticated || !user || user.role === 'user') {
+  if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-slate-900 mx-auto"></div>
-          <p className="mt-4 text-slate-600">Loading...</p>
+          <p className="mt-4 text-slate-600">Loading authentication...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Show error if not authenticated
+  if (!isAuthenticated || !user) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <p className="text-slate-600">Redirecting to login...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Show error if user role is regular user
+  if (user.role === 'user') {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <p className="text-slate-600">Access denied. Redirecting...</p>
         </div>
       </div>
     );

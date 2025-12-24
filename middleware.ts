@@ -4,9 +4,37 @@ import type { NextRequest } from 'next/server';
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
-  // Get session token from cookies
-  const sessionToken = request.cookies.get('better-auth.session_token')?.value;
+  // Get session token from cookies - Better Auth uses this cookie name
+  // Check both with and without dot prefix for compatibility
+  const sessionToken = 
+    request.cookies.get('better-auth.session_token')?.value ||
+    request.cookies.get('better-auth.session-token')?.value ||
+    request.cookies.get('better_auth_session_token')?.value;
+  
   const hasSession = !!sessionToken;
+
+  // Enhanced debug logging
+  if (process.env.NODE_ENV === 'development') {
+    const allCookies = request.cookies.getAll();
+    console.log('Middleware Debug:', { 
+      pathname, 
+      hasSession,
+      sessionToken: sessionToken ? 'present' : 'missing',
+      allCookieNames: allCookies.map(c => c.name),
+      allCookies: allCookies.map(c => ({ name: c.name, value: c.value.substring(0, 20) + '...' }))
+    });
+  }
+
+  // Also log in production for debugging (can remove after fix)
+  if (process.env.NODE_ENV === 'production' && pathname.startsWith('/dashboard')) {
+    const allCookies = request.cookies.getAll();
+    console.log('Production Middleware:', { 
+      pathname, 
+      hasSession,
+      cookieCount: allCookies.length,
+      cookieNames: allCookies.map(c => c.name)
+    });
+  }
 
   // Auth pages - redirect to homepage if already logged in
   if (pathname === '/auth/signin' || pathname === '/auth/register') {
