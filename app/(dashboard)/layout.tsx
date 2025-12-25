@@ -6,7 +6,7 @@ import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { LogoutButton } from "@/components/auth/LogoutButton";
 import { UserMenu } from "@/components/auth/UserMenu";
-import { useUser } from "@/lib/hooks/use-auth";
+import { useUser, useAuthSync } from "@/lib/hooks/use-auth";
 
 const nav = [
   { href: "/dashboard", label: "Home" },
@@ -16,17 +16,22 @@ const nav = [
 ];
 
 export default function DashboardLayout({ children }: { children: ReactNode }) {
+  // Sync auth state from Better Auth to Zustand
+  useAuthSync();
+  
   const { user, isAuthenticated, isLoading } = useUser();
   const router = useRouter();
 
   useEffect(() => {
-    // Debug logging
-    console.log('Dashboard Layout:', { isLoading, isAuthenticated, userRole: user?.role });
+    // Wait for initial auth sync to complete
+    if (isLoading) {
+      console.log('Auth still loading, waiting...');
+      return;
+    }
 
-    // Wait for auth to load
-    if (isLoading) return;
+    console.log('Auth loaded:', { isAuthenticated, role: user?.role });
 
-    // Redirect if not authenticated
+    // Redirect if not authenticated after loading is complete
     if (!isAuthenticated) {
       console.log('Not authenticated, redirecting to signin');
       router.push('/auth/signin?callbackUrl=/dashboard');
