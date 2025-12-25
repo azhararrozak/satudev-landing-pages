@@ -16,28 +16,28 @@ export async function middleware(request: NextRequest) {
   
   const hasSession = !!sessionToken;
 
-  // Enhanced debug logging
-  if (process.env.NODE_ENV === 'development') {
-    const allCookies = request.cookies.getAll();
-    console.log('Middleware Debug:', { 
-      pathname, 
-      hasSession,
-      sessionToken: sessionToken ? 'present' : 'missing',
-      allCookieNames: allCookies.map(c => c.name),
-      allCookies: allCookies.map(c => ({ name: c.name, value: c.value.substring(0, 20) + '...' }))
-    });
-  }
+  // // Enhanced debug logging
+  // if (process.env.NODE_ENV === 'development') {
+  //   const allCookies = request.cookies.getAll();
+  //   console.log('Middleware Debug:', { 
+  //     pathname, 
+  //     hasSession,
+  //     sessionToken: sessionToken ? 'present' : 'missing',
+  //     allCookieNames: allCookies.map(c => c.name),
+  //     allCookies: allCookies.map(c => ({ name: c.name, value: c.value.substring(0, 20) + '...' }))
+  //   });
+  // }
 
-  // Also log in production for debugging (can remove after fix)
-  if (process.env.NODE_ENV === 'production' && pathname.startsWith('/dashboard')) {
-    const allCookies = request.cookies.getAll();
-    console.log('Production Middleware:', { 
-      pathname, 
-      hasSession,
-      cookieCount: allCookies.length,
-      cookieNames: allCookies.map(c => c.name)
-    });
-  }
+  // // Also log in production for debugging (can remove after fix)
+  // if (process.env.NODE_ENV === 'production' && pathname.startsWith('/dashboard')) {
+  //   const allCookies = request.cookies.getAll();
+  //   console.log('Production Middleware:', { 
+  //     pathname, 
+  //     hasSession,
+  //     cookieCount: allCookies.length,
+  //     cookieNames: allCookies.map(c => c.name)
+  //   });
+  // }
 
   // Auth pages - redirect to homepage if already logged in
   if (pathname === '/auth/signin' || pathname === '/auth/register') {
