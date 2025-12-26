@@ -91,12 +91,12 @@ export function useAuthSync() {
     window.addEventListener('auth-change', handleAuthChange);
 
     // Periodic sync every 30 seconds to check session validity
-    const intervalId = setInterval(syncAuth, 30000);
+    // const intervalId = setInterval(syncAuth, 30000);
 
     return () => {
       window.removeEventListener('storage', handleStorageChange);
       window.removeEventListener('auth-change', handleAuthChange);
-      clearInterval(intervalId);
+      // clearInterval(intervalId);
     };
   }, [setUser, setSession, setLoading]);
 }
