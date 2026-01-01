@@ -25,22 +25,17 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
   useEffect(() => {
     // Wait for initial auth sync to complete
     if (isLoading) {
-      console.log('Auth still loading, waiting...');
       return;
     }
 
-    console.log('Auth loaded:', { isAuthenticated, role: user?.role });
-
     // Redirect if not authenticated after loading is complete
     if (!isAuthenticated) {
-      console.log('Not authenticated, redirecting to signin');
       router.push('/auth/signin?callbackUrl=/dashboard');
       return;
     }
 
     // Redirect regular users to homepage (only admin and penulis can access dashboard)
     if (user && user.role === 'user') {
-      console.log('User role is "user", redirecting to homepage');
       router.push('/');
     }
   }, [isAuthenticated, user, isLoading, router]);

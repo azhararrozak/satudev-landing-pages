@@ -1,6 +1,5 @@
 import { db } from "@/lib/backend/db";
 import { categories } from "@/schema";
-import { eq } from "drizzle-orm";
 import { NextResponse } from "next/server";
 import { auth } from "@/lib/backend/auth";
 import { headers } from "next/headers";

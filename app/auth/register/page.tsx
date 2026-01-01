@@ -36,17 +36,43 @@ const RegisterPage = () => {
       await client.signUp.email({
         ...data,
         fetchOptions: {
-          onResponse: () => {
-            setIsLoading(false);
-          },
           onRequest: () => {
             setIsLoading(true);
           },
           onError: (ctx) => {
             toast.error(ctx.error.message);
+            setIsLoading(false);
           },
           onSuccess: async () => {
-            router.replace("/auth/signin");
+            toast.success("Account created successfully!");
+            
+            // Auto-login after successful registration
+            try {
+              await client.signIn.email({
+                email: data.email,
+                password: data.password,
+                fetchOptions: {
+                  onSuccess: async () => {
+                    // Trigger auth sync
+                    window.dispatchEvent(new Event('auth-change'));
+                    
+                    // Small delay to ensure auth state is synced
+                    await new Promise(resolve => setTimeout(resolve, 300));
+                    
+                    toast.success("Successfully signed in!");
+                    router.push("/");
+                  },
+                  onError: () => {
+                    // If auto-login fails, redirect to signin page
+                    toast.error("Please sign in with your new account");
+                    router.push("/auth/signin");
+                  }
+                }
+              });
+            } catch (error) {
+              console.error("Auto-login error:", error);
+              router.push("/auth/signin");
+            }
           },
         },
       });
