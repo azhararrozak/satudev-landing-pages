@@ -5,13 +5,23 @@ import { NextResponse } from "next/server";
 import { auth } from "@/lib/backend/auth";
 import { headers } from "next/headers";
 
-export async function GET() {
+export async function GET(request: Request) {
   try {
-    const allPosts = await db
+    const { searchParams } = new URL(request.url);
+    const page = parseInt(searchParams.get("page") || "1");
+    const limit = parseInt(searchParams.get("limit") || "10");
+    const status = searchParams.get("status"); // filter by status
+    const sort = searchParams.get("sort") || "desc"; // asc or desc
+
+    const offset = (page - 1) * limit;
+
+    // Build query with filters
+    let query = db
       .select({
         id: posts.id,
         title: posts.title,
         slug: posts.slug,
+        content: posts.content,
         excerpt: posts.excerpt,
         featuredImage: posts.featuredImage,
         status: posts.status,
@@ -24,10 +34,37 @@ export async function GET() {
         updatedAt: posts.updatedAt,
       })
       .from(posts)
-      .leftJoin(categories, eq(posts.categoryId, categories.id))
-      .orderBy(desc(posts.createdAt));
+      .leftJoin(categories, eq(posts.categoryId, categories.id));
 
-    return NextResponse.json(allPosts);
+    // Apply status filter if provided
+    if (status) {
+      query = query.where(eq(posts.status, status));
+    }
+
+    // Apply sorting
+    if (sort === "asc") {
+      query = query.orderBy(posts.createdAt);
+    } else {
+      query = query.orderBy(desc(posts.createdAt));
+    }
+
+    // Get total count for pagination
+    const allPosts = await query;
+    const total = allPosts.length;
+
+    // Apply pagination
+    const paginatedPosts = allPosts.slice(offset, offset + limit);
+
+    // Return with pagination metadata
+    return NextResponse.json({
+      posts: paginatedPosts,
+      meta: {
+        total,
+        page,
+        limit,
+        totalPages: Math.ceil(total / limit),
+      },
+    });
   } catch (error) {
     console.error("Error fetching posts:", error);
     return NextResponse.json(

@@ -16,7 +16,8 @@ export default function Header() {
   const { language, setLanguage, t } = useLanguage();
   const router = useRouter();
   const pathname = usePathname();
-  const { user, isAuthenticated } = useUser();
+  const { user, isAuthenticated, isLoading } = useUser();
+  const [authChecked, setAuthChecked] = useState(false);
 
   useEffect(() => {
     // Check for dark mode preference
@@ -31,7 +32,28 @@ export default function Header() {
       setIsDarkMode(false);
       document.documentElement.classList.remove("dark");
     }
+
+    // Listen for auth changes to update UI
+    const handleAuthChange = () => {
+      // Force re-render by triggering state update in auth store
+      window.dispatchEvent(new Event('auth-sync'));
+      setAuthChecked(prev => !prev); // Force re-render
+    };
+
+    window.addEventListener('auth-change', handleAuthChange);
+    
+    return () => {
+      window.removeEventListener('auth-change', handleAuthChange);
+    };
   }, []);
+
+  // Re-check auth when pathname changes (after navigation)
+  useEffect(() => {
+    if (pathname === '/') {
+      // Trigger auth sync when landing on homepage
+      window.dispatchEvent(new Event('auth-sync'));
+    }
+  }, [pathname]);
 
   const toggleDarkMode = () => {
     if (isDarkMode) {
@@ -143,6 +165,12 @@ export default function Header() {
               {t("nav.about")}
             </Link>
             <Link
+              href="/blog"
+              className="text-sm font-medium text-slate-700 hover:text-primary dark:text-slate-200 dark:hover:text-primary"
+            >
+              Blog
+            </Link>
+            <Link
               href="#contact"
               onClick={(e) => handleNavClick(e, '#contact')}
               className="text-sm font-medium text-slate-700 hover:text-primary dark:text-slate-200 dark:hover:text-primary"
@@ -183,7 +211,9 @@ export default function Header() {
 
           {/* Auth Section */}
           <div className="hidden md:flex ml-4 items-center gap-3">
-            {isAuthenticated && user ? (
+            {isLoading ? (
+              <div className="h-10 w-24 bg-slate-200 dark:bg-slate-700 animate-pulse rounded-lg" />
+            ) : isAuthenticated && user ? (
               <UserMenuHomepage />
             ) : (
               <Link href="/auth/signin">
@@ -236,13 +266,22 @@ export default function Header() {
               {t("nav.about")}
             </Link>
             <Link
+              href="/blog"
+              onClick={() => setIsMenuOpen(false)}
+              className="text-lg font-medium text-slate-700 hover:text-primary dark:text-slate-200 dark:hover:text-primary"
+            >
+              Blog
+            </Link>
+            <Link
               href="#contact"
               onClick={(e) => handleNavClick(e, '#contact')}
               className="text-lg font-medium text-slate-700 hover:text-primary dark:text-slate-200 dark:hover:text-primary"
             >
               {t("nav.contact")}
             </Link>
-            {isAuthenticated && user ? (
+            {isLoading ? (
+              <div className="h-12 w-full bg-slate-200 dark:bg-slate-700 animate-pulse rounded-lg" />
+            ) : isAuthenticated && user ? (
               <div className="w-full">
                 <UserMenuHomepage />
               </div>

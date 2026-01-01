@@ -36,7 +36,10 @@ export default function PostsPage() {
       const response = await fetch("/api/posts");
       if (!response.ok) throw new Error("Failed to fetch posts");
       const data = await response.json();
-      setPosts(data);
+      
+      // Handle both old format (array) and new format (object with posts array)
+      const postsData = data.posts || data;
+      setPosts(postsData);
     } catch (error) {
       console.error("Error fetching posts:", error);
       toast.error("Failed to fetch posts");

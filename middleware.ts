@@ -49,7 +49,10 @@ export async function middleware(request: NextRequest) {
 
   // Public routes
   const publicRoutes = ['/', '/privacy-policy', '/terms-of-service', '/projects'];
-  const isPublicRoute = publicRoutes.some(route => pathname === route || pathname.startsWith('/api/auth'));
+  const publicPaths = ['/blog', '/api/auth', '/api/comments', '/api/posts'];
+  
+  const isPublicRoute = publicRoutes.includes(pathname) || 
+                        publicPaths.some(path => pathname.startsWith(path));
 
   // If route is public, allow access
   if (isPublicRoute) {
