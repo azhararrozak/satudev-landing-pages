@@ -58,10 +58,6 @@ export default function CommentSection({ postId }: CommentSectionProps) {
     }
   }, [isAuthenticated, user]);
 
-  useEffect(() => {
-    fetchComments();
-  }, [postId]);
-
   const fetchComments = async () => {
     try {
       const response = await fetch(
@@ -91,6 +87,10 @@ export default function CommentSection({ postId }: CommentSectionProps) {
       setIsLoading(false);
     }
   };
+
+  useEffect(() => {
+    fetchComments();
+  }, [postId]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

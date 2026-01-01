@@ -5,6 +5,7 @@ import { AdminOnly, ContentCreatorOnly } from '@/components/auth/RoleGuard';
 import { UserInfo } from '@/components/auth/UserRoleBadge';
 import { canCreateContent, canDeleteContent } from '@/lib/rbac';
 import { useEffect, useState } from 'react';
+import Link from 'next/link';
 
 interface DashboardStats {
   totalPosts: number;
@@ -131,12 +132,12 @@ export default function DashboardHomePage() {
         
         <div className="rounded-2xl border bg-slate-50 p-4">
           <p className="text-sm text-slate-600">
-            {isAdmin ? 'Status' : 'Post Saya'}
+            {isAdmin() ? 'Status' : 'Post Saya'}
           </p>
           <p className="mt-2 text-2xl font-semibold">
             {statsLoading ? (
               <span className="animate-pulse">...</span>
-            ) : isAdmin ? (
+            ) : isAdmin() ? (
               'Active'
             ) : (
               stats?.userPosts || 0
@@ -244,9 +245,9 @@ export default function DashboardHomePage() {
       <div className="rounded-2xl border bg-white p-6">
         <div className="flex items-center justify-between mb-4">
           <h3 className="text-lg font-semibold">📄 Post Terbaru</h3>
-          <a href="/dashboard/posts" className="text-sm text-blue-600 hover:underline">
+          <Link href="/dashboard/posts" className="text-sm text-blue-600 hover:underline">
             Lihat Semua
-          </a>
+          </Link>
         </div>
         
         {postsLoading ? (
@@ -262,12 +263,12 @@ export default function DashboardHomePage() {
           </div>
         ) : recentPosts.length === 0 ? (
           <p className="text-sm text-slate-500 text-center py-8">
-            Belum ada post. <a href="/dashboard/posts/new" className="text-blue-600 hover:underline">Buat post pertama</a>
+            Belum ada post. <Link href="/dashboard/posts/new" className="text-blue-600 hover:underline">Buat post pertama</Link>
           </p>
         ) : (
           <div className="space-y-3">
             {recentPosts.map((post) => (
-              <a
+              <Link
                 key={post.id}
                 href={`/dashboard/posts/${post.id}`}
                 className="flex items-center justify-between p-3 border rounded-lg hover:bg-slate-50 transition"
@@ -287,7 +288,7 @@ export default function DashboardHomePage() {
                 }`}>
                   {post.status}
                 </span>
-              </a>
+              </Link>
             ))}
           </div>
         )}

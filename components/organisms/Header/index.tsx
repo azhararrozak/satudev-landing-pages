@@ -17,7 +17,6 @@ export default function Header() {
   const router = useRouter();
   const pathname = usePathname();
   const { user, isAuthenticated, isLoading } = useUser();
-  const [authChecked, setAuthChecked] = useState(false);
 
   useEffect(() => {
     // Check for dark mode preference
@@ -37,7 +36,6 @@ export default function Header() {
     const handleAuthChange = () => {
       // Force re-render by triggering state update in auth store
       window.dispatchEvent(new Event('auth-sync'));
-      setAuthChecked(prev => !prev); // Force re-render
     };
 
     window.addEventListener('auth-change', handleAuthChange);

@@ -5,8 +5,9 @@ import { useRouter } from "next/navigation";
 import Header from "@/components/organisms/Header";
 import Footer from "@/components/organisms/Footer";
 import CommentSection from "@/components/blog/CommentSection";
-import { Calendar, ArrowLeft, User, Tag } from "lucide-react";
+import { Calendar, ArrowLeft, Tag } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import Image from "next/image";
 
 type Post = {
   id: string;
@@ -31,44 +32,33 @@ export default function BlogDetailPage({ params }: PageProps) {
   const router = useRouter();
   const [post, setPost] = useState<Post | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const [slug, setSlug] = useState("");
 
   useEffect(() => {
     const loadPost = async () => {
       const resolvedParams = await params;
-      setSlug(resolvedParams.slug);
-      await fetchPost(resolvedParams.slug);
+      const slug = resolvedParams.slug;
+      
+      try {
+        // Fetch all published posts and find by slug
+        const response = await fetch("/api/posts?status=published");
+        if (!response.ok) throw new Error("Failed to fetch posts");
+        const data = await response.json();
+        
+        // Handle both old format (array) and new format (object with posts array)
+        const postsList = Array.isArray(data) ? data : data.posts || [];
+        const foundPost = postsList.find((p: Post) => p.slug === slug);
+        
+        if (foundPost) {
+          setPost(foundPost);
+        }
+      } catch (error) {
+        console.error("Error fetching post:", error);
+      } finally {
+        setIsLoading(false);
+      }
     };
     loadPost();
   }, [params]);
-
-  const fetchPost = async (postSlug: string) => {
-    try {
-      // Fetch all published posts and find by slug
-      const response = await fetch("/api/posts?status=published");
-      if (!response.ok) throw new Error("Failed to fetch posts");
-      const data = await response.json();
-      
-      // Handle both old format (array) and new format (object with posts array)
-      const postsData = data.posts || data;
-      
-      const foundPost = postsData.find(
-        (p: Post) => p.slug === postSlug && p.status === "published"
-      );
-      
-      if (!foundPost) {
-        router.push("/blog");
-        return;
-      }
-      
-      setPost(foundPost);
-    } catch (error) {
-      console.error("Error fetching post:", error);
-      router.push("/blog");
-    } finally {
-      setIsLoading(false);
-    }
-  };
 
   const formatDate = (date: Date | null) => {
     if (!date) return "";
@@ -147,7 +137,7 @@ export default function BlogDetailPage({ params }: PageProps) {
           {/* Featured Image */}
           {post.featuredImage && (
             <div className="mb-12 rounded-2xl overflow-hidden shadow-2xl">
-              <img
+              <Image
                 src={post.featuredImage}
                 alt={post.title}
                 className="w-full h-auto"

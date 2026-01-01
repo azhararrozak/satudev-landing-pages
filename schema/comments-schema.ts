@@ -3,6 +3,7 @@ import {
     text,
     timestamp,
     varchar,
+    PgColumn,
 } from "drizzle-orm/pg-core";
 import { users } from "./auth-schema";
 import { posts } from "./posts-schema";
@@ -16,7 +17,7 @@ export const comments = pgTable("comments", {
         .notNull()
         .references(() => posts.id, { onDelete: "cascade" }),
     parentId: text("parent_id")
-        .references(() => comments.id, { onDelete: "cascade" }),
+        .references((): PgColumn => comments.id, { onDelete: "cascade" }),
     userId: text("user_id")
         .references(() => users.id, { onDelete: "set null" }),
     createdAt: timestamp("created_at").notNull().defaultNow(),

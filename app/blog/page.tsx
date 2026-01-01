@@ -4,8 +4,9 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import Header from "@/components/organisms/Header";
 import Footer from "@/components/organisms/Footer";
-import { Calendar, Clock, User, ChevronLeft, ChevronRight } from "lucide-react";
+import { Calendar, ChevronLeft, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import Image from "next/image";
 
 type Post = {
   id: string;
@@ -169,7 +170,7 @@ export default function BlogPage() {
                       {/* Featured Image */}
                       <div className="relative h-48 bg-gradient-to-br from-blue-500 to-purple-600 overflow-hidden">
                         {post.featuredImage ? (
-                          <img
+                          <Image
                             src={post.featuredImage}
                             alt={post.title}
                             className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"

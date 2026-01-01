@@ -1,11 +1,11 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextResponse } from "next/server";
 import { db } from "@/lib/backend/db";
 import { posts, categories, comments } from "@/schema";
 import { auth } from "@/lib/backend/auth";
 import { headers } from "next/headers";
 import { sql } from "drizzle-orm";
 
-export async function GET(req: NextRequest) {
+export async function GET() {
   try {
     // Get session to check auth
     const session = await auth.api.getSession({

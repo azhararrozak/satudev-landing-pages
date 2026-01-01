@@ -10,13 +10,13 @@ export async function GET(request: Request) {
     const { searchParams } = new URL(request.url);
     const page = parseInt(searchParams.get("page") || "1");
     const limit = parseInt(searchParams.get("limit") || "10");
-    const status = searchParams.get("status"); // filter by status
+    const statusParam = searchParams.get("status"); // filter by status
     const sort = searchParams.get("sort") || "desc"; // asc or desc
 
     const offset = (page - 1) * limit;
 
-    // Build query with filters
-    let query = db
+    // Build base query
+    const baseQuery = db
       .select({
         id: posts.id,
         title: posts.title,
@@ -36,20 +36,27 @@ export async function GET(request: Request) {
       .from(posts)
       .leftJoin(categories, eq(posts.categoryId, categories.id));
 
-    // Apply status filter if provided
-    if (status) {
-      query = query.where(eq(posts.status, status));
-    }
-
-    // Apply sorting
-    if (sort === "asc") {
-      query = query.orderBy(posts.createdAt);
+    // Build query with filters and sorting
+    let allPosts;
+    if (statusParam && (statusParam === 'draft' || statusParam === 'published')) {
+      if (sort === "asc") {
+        allPosts = await baseQuery
+          .where(eq(posts.status, statusParam))
+          .orderBy(posts.createdAt);
+      } else {
+        allPosts = await baseQuery
+          .where(eq(posts.status, statusParam))
+          .orderBy(desc(posts.createdAt));
+      }
     } else {
-      query = query.orderBy(desc(posts.createdAt));
+      if (sort === "asc") {
+        allPosts = await baseQuery.orderBy(posts.createdAt);
+      } else {
+        allPosts = await baseQuery.orderBy(desc(posts.createdAt));
+      }
     }
 
     // Get total count for pagination
-    const allPosts = await query;
     const total = allPosts.length;
 
     // Apply pagination

@@ -62,7 +62,7 @@ const RegisterPage = () => {
                     toast.success("Successfully signed in!");
                     router.push("/");
                   },
-                  onError: (ctx) => {
+                  onError: () => {
                     // If auto-login fails, redirect to signin page
                     toast.error("Please sign in with your new account");
                     router.push("/auth/signin");

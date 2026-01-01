@@ -12,7 +12,7 @@ export async function GET(request: Request) {
     const postId = searchParams.get("postId");
     const includeReplies = searchParams.get("includeReplies") !== "false";
 
-    let query = db
+    const baseQuery = db
       .select({
         id: comments.id,
         content: comments.content,
@@ -30,20 +30,23 @@ export async function GET(request: Request) {
       .leftJoin(posts, eq(comments.postId, posts.id));
 
     // Filter by postId if provided
+    let allComments;
     if (postId) {
       if (includeReplies) {
-        query = query.where(eq(comments.postId, postId));
+        allComments = await baseQuery
+          .where(eq(comments.postId, postId))
+          .orderBy(desc(comments.createdAt));
       } else {
-        query = query.where(
-          and(eq(comments.postId, postId), isNull(comments.parentId))
-        );
+        allComments = await baseQuery
+          .where(and(eq(comments.postId, postId), isNull(comments.parentId)))
+          .orderBy(desc(comments.createdAt));
       }
     } else {
       // If no postId, only return top-level comments
-      query = query.where(isNull(comments.parentId));
+      allComments = await baseQuery
+        .where(isNull(comments.parentId))
+        .orderBy(desc(comments.createdAt));
     }
-
-    const allComments = await query.orderBy(desc(comments.createdAt));
 
     return NextResponse.json(allComments);
   } catch (error) {
@@ -92,11 +95,11 @@ export async function POST(request: Request) {
       if (session?.user) {
         userId = session.user.id;
       }
-    } catch (error) {
+    } catch {
       // Not authenticated, continue as guest
     }
 
-    const [newComment] = await db
+    const result = await db
       .insert(comments)
       .values({
         content,
@@ -108,9 +111,10 @@ export async function POST(request: Request) {
       })
       .returning();
 
+    const newComment = Array.isArray(result) ? result[0] : result;
+
     return NextResponse.json(newComment, { status: 201 });
-  } catch (error) {
-    console.error("Error creating comment:", error);
+  } catch {
     return NextResponse.json(
       { error: "Failed to create comment" },
       { status: 500 }

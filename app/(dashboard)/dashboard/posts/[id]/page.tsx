@@ -16,16 +16,6 @@ type Category = {
   name: string;
 };
 
-type Post = {
-  id: string;
-  title: string;
-  content: string;
-  excerpt: string;
-  featuredImage: string;
-  status: string;
-  categoryId: string;
-};
-
 type PageProps = {
   params: Promise<{ id: string }>;
 };
