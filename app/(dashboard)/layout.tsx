@@ -13,6 +13,7 @@ const nav = [
   { href: "/dashboard/posts", label: "Post" },
   { href: "/dashboard/comments", label: "Komen" },
   { href: "/dashboard/categories", label: "Category" },
+  { href: "/dashboard/tags", label: "Tag" },
 ];
 
 export default function DashboardLayout({ children }: { children: ReactNode }) {

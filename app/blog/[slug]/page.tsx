@@ -24,6 +24,13 @@ type Post = {
   updatedAt: Date;
 };
 
+type PostTag = {
+  id: string;
+  name: string;
+  slug: string;
+  description: string | null;
+};
+
 type PageProps = {
   params: Promise<{ slug: string }>;
 };
@@ -31,6 +38,7 @@ type PageProps = {
 export default function BlogDetailPage({ params }: PageProps) {
   const router = useRouter();
   const [post, setPost] = useState<Post | null>(null);
+  const [tags, setTags] = useState<PostTag[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
@@ -50,6 +58,16 @@ export default function BlogDetailPage({ params }: PageProps) {
         
         if (foundPost) {
           setPost(foundPost);
+          // Fetch tags for this post
+          try {
+            const tagsResponse = await fetch(`/api/posts/${foundPost.id}/tags`);
+            if (tagsResponse.ok) {
+              const tagsData = await tagsResponse.json();
+              setTags(tagsData);
+            }
+          } catch (error) {
+            console.error("Error fetching tags:", error);
+          }
         }
       } catch (error) {
         console.error("Error fetching post:", error);
@@ -98,10 +116,8 @@ export default function BlogDetailPage({ params }: PageProps) {
     <main className="min-h-screen bg-gradient-to-b from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800">
       <Header />
 
-      {/* Article Content */}
       <article className="pt-32 pb-20 px-4">
         <div className="max-w-4xl mx-auto">
-          {/* Back Button */}
           <Button
             variant="ghost"
             onClick={() => router.push("/blog")}
@@ -111,7 +127,6 @@ export default function BlogDetailPage({ params }: PageProps) {
             Kembali ke Blog
           </Button>
 
-          {/* Category */}
           {post.categoryName && (
             <div className="mb-4">
               <span className="inline-flex items-center px-4 py-2 bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 rounded-full text-sm font-medium">
@@ -121,12 +136,10 @@ export default function BlogDetailPage({ params }: PageProps) {
             </div>
           )}
 
-          {/* Title */}
           <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-slate-900 dark:text-white mb-6 leading-tight">
             {post.title}
           </h1>
 
-          {/* Meta Info */}
           <div className="flex flex-wrap items-center gap-6 text-slate-600 dark:text-slate-400 mb-8 pb-8 border-b border-slate-200 dark:border-slate-700">
             <div className="flex items-center">
               <Calendar className="h-5 w-5 mr-2" />
@@ -134,18 +147,37 @@ export default function BlogDetailPage({ params }: PageProps) {
             </div>
           </div>
 
-          {/* Featured Image */}
+          {tags.length > 0 && (
+            <div className="mb-8">
+              <div className="flex items-center gap-2 mb-3">
+                <Tag className="h-4 w-4 text-slate-600 dark:text-slate-400" />
+                <span className="text-sm font-medium text-slate-600 dark:text-slate-400">
+                  Tags:
+                </span>
+              </div>
+              <div className="flex flex-wrap gap-2">
+                {tags.map((tag) => (
+                  <span
+                    key={tag.id}
+                    className="inline-flex items-center px-3 py-1 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 rounded-full text-sm font-medium hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors cursor-default"
+                  >
+                    #{tag.name}
+                  </span>
+                ))}
+              </div>
+            </div>
+          )}
+
           {post.featuredImage && (
             <div className="mb-12 rounded-2xl overflow-hidden shadow-2xl">
               <Image
                 src={post.featuredImage}
                 alt={post.title}
-                className="w-full h-auto"
+                className="w-full h-auto object-cover"
               />
             </div>
           )}
 
-          {/* Content */}
           <div
             className="prose prose-lg prose-slate dark:prose-invert max-w-none
               prose-headings:font-bold prose-headings:text-slate-900 dark:prose-headings:text-white
@@ -161,7 +193,6 @@ export default function BlogDetailPage({ params }: PageProps) {
             dangerouslySetInnerHTML={{ __html: post.content }}
           />
 
-          {/* Share Section */}
           <div className="mt-16 pt-8 border-t border-slate-200 dark:border-slate-700">
             <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-4">
               Bagikan Artikel
@@ -214,7 +245,6 @@ export default function BlogDetailPage({ params }: PageProps) {
             </div>
           </div>
 
-          {/* Comment Section */}
           {post && <CommentSection postId={post.id} />}
         </div>
       </article>
