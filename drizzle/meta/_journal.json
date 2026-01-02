@@ -43,6 +43,13 @@
       "when": 1767273050104,
       "tag": "0005_fat_stone_men",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1767360719589,
+      "tag": "0006_dashing_nightshade",
+      "breakpoints": true
     }
   ]
 }

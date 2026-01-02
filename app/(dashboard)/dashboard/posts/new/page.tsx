@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { TiptapEditor } from "@/components/ui/tiptap-editor";
+import { TagSelector } from "@/components/ui/tag-selector";
 import { Loader2, ArrowLeft } from "lucide-react";
 import { toast } from "sonner";
 
@@ -21,6 +22,7 @@ export default function NewPostPage() {
   const { user } = useUser();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [categories, setCategories] = useState<Category[]>([]);
+  const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [formData, setFormData] = useState({
     title: "",
     content: "",
@@ -52,6 +54,7 @@ export default function NewPostPage() {
     setIsSubmitting(true);
 
     try {
+      // First, create the post
       const response = await fetch("/api/posts", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -61,6 +64,22 @@ export default function NewPostPage() {
       if (!response.ok) {
         const error = await response.json();
         throw new Error(error.error || "Failed to create post");
+      }
+
+      const newPost = await response.json();
+
+      // Then, add tags to the post if any are selected
+      if (selectedTags.length > 0) {
+        const tagsResponse = await fetch(`/api/posts/${newPost.id}/tags`, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ tagIds: selectedTags }),
+        });
+
+        if (!tagsResponse.ok) {
+          console.error("Failed to add tags to post");
+          toast.error("Post created but failed to add tags");
+        }
       }
 
       toast.success("Post created successfully");
@@ -163,6 +182,14 @@ export default function NewPostPage() {
               ))}
             </select>
           </div>
+        </div>
+
+        <div className="space-y-2">
+          <TagSelector
+            selectedTags={selectedTags}
+            onChange={setSelectedTags}
+            label="Tags"
+          />
         </div>
 
         <div className="space-y-2">

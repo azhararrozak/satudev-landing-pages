@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { TiptapEditor } from "@/components/ui/tiptap-editor";
+import { TagSelector } from "@/components/ui/tag-selector";
 import { Loader2, ArrowLeft } from "lucide-react";
 import { toast } from "sonner";
 
@@ -26,6 +27,7 @@ export default function EditPostPage({ params }: PageProps) {
   const [isLoading, setIsLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [categories, setCategories] = useState<Category[]>([]);
+  const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [postId, setPostId] = useState<string>("");
   const [formData, setFormData] = useState({
     title: "",
@@ -40,7 +42,11 @@ export default function EditPostPage({ params }: PageProps) {
     const loadData = async () => {
       const resolvedParams = await params;
       setPostId(resolvedParams.id);
-      await Promise.all([fetchPost(resolvedParams.id), fetchCategories()]);
+      await Promise.all([
+        fetchPost(resolvedParams.id),
+        fetchCategories(),
+        fetchPostTags(resolvedParams.id)
+      ]);
     };
     loadData();
   }, [params]);
@@ -78,6 +84,17 @@ export default function EditPostPage({ params }: PageProps) {
     }
   };
 
+  const fetchPostTags = async (id: string) => {
+    try {
+      const response = await fetch(`/api/posts/${id}/tags`);
+      if (!response.ok) throw new Error("Failed to fetch post tags");
+      const data = await response.json();
+      setSelectedTags(data.map((tag: { id: string }) => tag.id));
+    } catch (error) {
+      console.error("Error fetching post tags:", error);
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!user?.id || !postId) return;
@@ -85,6 +102,7 @@ export default function EditPostPage({ params }: PageProps) {
     setIsSubmitting(true);
 
     try {
+      // Update post
       const response = await fetch(`/api/posts/${postId}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
@@ -94,6 +112,18 @@ export default function EditPostPage({ params }: PageProps) {
       if (!response.ok) {
         const error = await response.json();
         throw new Error(error.error || "Failed to update post");
+      }
+
+      // Update tags
+      const tagsResponse = await fetch(`/api/posts/${postId}/tags`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ tagIds: selectedTags }),
+      });
+
+      if (!tagsResponse.ok) {
+        console.error("Failed to update tags");
+        toast.error("Post updated but failed to update tags");
       }
 
       toast.success("Post updated successfully");
@@ -204,6 +234,14 @@ export default function EditPostPage({ params }: PageProps) {
               ))}
             </select>
           </div>
+        </div>
+
+        <div className="space-y-2">
+          <TagSelector
+            selectedTags={selectedTags}
+            onChange={setSelectedTags}
+            label="Tags"
+          />
         </div>
 
         <div className="space-y-2">
