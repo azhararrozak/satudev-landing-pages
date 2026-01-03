@@ -9,6 +9,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { TiptapEditor } from "@/components/ui/tiptap-editor";
 import { TagSelector } from "@/components/ui/tag-selector";
+import { FeaturedImageUpload } from "@/components/ui/featured-image-upload";
 import { AIGenerateDialog } from "@/components/ai/AIGenerateDialog";
 import { Loader2, ArrowLeft, Sparkles } from "lucide-react";
 import { toast } from "sonner";
@@ -171,15 +172,9 @@ export default function NewPostPage() {
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div className="space-y-2">
-            <Label htmlFor="featuredImage">Featured Image URL</Label>
-            <Input
-              id="featuredImage"
+            <FeaturedImageUpload
               value={formData.featuredImage}
-              onChange={(e) =>
-                setFormData({ ...formData, featuredImage: e.target.value })
-              }
-              placeholder="https://example.com/image.jpg"
-              type="url"
+              onChange={(url) => setFormData({ ...formData, featuredImage: url })}
             />
           </div>
 
