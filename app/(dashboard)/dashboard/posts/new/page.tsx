@@ -9,7 +9,8 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { TiptapEditor } from "@/components/ui/tiptap-editor";
 import { TagSelector } from "@/components/ui/tag-selector";
-import { Loader2, ArrowLeft } from "lucide-react";
+import { AIGenerateDialog } from "@/components/ai/AIGenerateDialog";
+import { Loader2, ArrowLeft, Sparkles } from "lucide-react";
 import { toast } from "sonner";
 
 type Category = {
@@ -94,19 +95,37 @@ export default function NewPostPage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center gap-4">
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={() => router.back()}
-        >
-          <ArrowLeft className="h-4 w-4 mr-2" />
-          Back
-        </Button>
-        <div>
-          <h1 className="text-3xl font-bold text-slate-900">Create New Post</h1>
-          <p className="text-slate-600 mt-1">Write your blog post content</p>
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-4">
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => router.back()}
+          >
+            <ArrowLeft className="h-4 w-4 mr-2" />
+            Back
+          </Button>
+          <div>
+            <h1 className="text-3xl font-bold text-slate-900">Create New Post</h1>
+            <p className="text-slate-600 mt-1">Write your blog post content</p>
+          </div>
         </div>
+        <AIGenerateDialog
+          onGenerated={(data) => {
+            setFormData({
+              ...formData,
+              title: data.title,
+              content: data.content,
+              excerpt: data.excerpt || formData.excerpt,
+            });
+            toast.success("Article generated successfully! Review and edit as needed.");
+          }}
+        >
+          <Button type="button" variant="default" size="lg" className="gap-2">
+            <Sparkles className="h-5 w-5" />
+            AI Generate
+          </Button>
+        </AIGenerateDialog>
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-6 bg-white rounded-lg shadow p-6">
