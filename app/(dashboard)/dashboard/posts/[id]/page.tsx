@@ -212,7 +212,7 @@ export default function EditPostPage({ params }: PageProps) {
                 setFormData({ ...formData, featuredImage: e.target.value })
               }
               placeholder="https://example.com/image.jpg"
-              type="url"
+              type="text"
             />
           </div>
 

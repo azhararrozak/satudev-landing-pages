@@ -92,6 +92,12 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
+        {/* Puter.js SDK for AI features */}
+        <Script
+          src="https://js.puter.com/v2/"
+          strategy="beforeInteractive"
+          id="puter-sdk"
+        />
         <Script
           type="application/ld+json"
           id="satudev-org"

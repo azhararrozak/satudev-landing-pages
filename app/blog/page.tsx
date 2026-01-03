@@ -170,9 +170,11 @@ export default function BlogPage() {
                       {/* Featured Image */}
                       <div className="relative h-48 bg-gradient-to-br from-blue-500 to-purple-600 overflow-hidden">
                         {post.featuredImage ? (
-                          <Image
-                            src={post.featuredImage}
+                          <Image  
+                          src={post.featuredImage}
                             alt={post.title}
+                            width={1200}
+                            height={600}
                             className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
                           />
                         ) : (

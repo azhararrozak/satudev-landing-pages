@@ -173,6 +173,8 @@ export default function BlogDetailPage({ params }: PageProps) {
               <Image
                 src={post.featuredImage}
                 alt={post.title}
+                width={1200}
+                height={600}
                 className="w-full h-auto object-cover"
               />
             </div>
