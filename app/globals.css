@@ -128,8 +128,9 @@
   }
 }
 
-/* Tiptap Editor Styles */
-.ProseMirror {
+/* Tiptap Editor & Display Styles */
+.ProseMirror,
+.tiptap-content {
   outline: none;
 }
 
@@ -141,7 +142,8 @@
   height: 0;
 }
 
-.ProseMirror h2 {
+.ProseMirror h2,
+.tiptap-content h2 {
   font-size: 1.5em;
   font-weight: 700;
   margin-top: 1em;
@@ -149,7 +151,8 @@
   line-height: 1.3;
 }
 
-.ProseMirror h3 {
+.ProseMirror h3,
+.tiptap-content h3 {
   font-size: 1.25em;
   font-weight: 600;
   margin-top: 0.8em;
@@ -157,29 +160,36 @@
   line-height: 1.4;
 }
 
-.ProseMirror p {
+.ProseMirror p,
+.tiptap-content p {
   margin-bottom: 0.75em;
 }
 
 .ProseMirror ul,
-.ProseMirror ol {
+.tiptap-content ul,
+.ProseMirror ol,
+.tiptap-content ol {
   padding-left: 1.5em;
   margin-bottom: 0.75em;
 }
 
-.ProseMirror ul {
+.ProseMirror ul,
+.tiptap-content ul {
   list-style-type: disc;
 }
 
-.ProseMirror ol {
+.ProseMirror ol,
+.tiptap-content ol {
   list-style-type: decimal;
 }
 
-.ProseMirror li {
+.ProseMirror li,
+.tiptap-content li {
   margin-bottom: 0.25em;
 }
 
-.ProseMirror blockquote {
+.ProseMirror blockquote,
+.tiptap-content blockquote {
   border-left: 3px solid #e5e7eb;
   padding-left: 1em;
   margin: 1em 0;
@@ -187,7 +197,8 @@
   font-style: italic;
 }
 
-.ProseMirror code {
+.ProseMirror code,
+.tiptap-content code {
   background-color: #f3f4f6;
   padding: 0.2em 0.4em;
   border-radius: 3px;
@@ -195,7 +206,8 @@
   font-family: 'Courier New', monospace;
 }
 
-.ProseMirror pre {
+.ProseMirror pre,
+.tiptap-content pre {
   background-color: #1e293b;
   color: #e2e8f0;
   padding: 1em;
@@ -204,8 +216,35 @@
   margin: 1em 0;
 }
 
-.ProseMirror pre code {
+.ProseMirror pre code,
+.tiptap-content pre code {
   background-color: transparent;
   padding: 0;
   color: inherit;
+}
+
+/* Ensure strong and bold elements render with correct font weight */
+.ProseMirror strong,
+.tiptap-content strong,
+.ProseMirror b,
+.tiptap-content b {
+  font-weight: 700 !important;
+}
+
+/* Explicit alignment classes if needed */
+.ProseMirror [style*="text-align: left"],
+.tiptap-content [style*="text-align: left"] {
+  text-align: left !important;
+}
+.ProseMirror [style*="text-align: center"],
+.tiptap-content [style*="text-align: center"] {
+  text-align: center !important;
+}
+.ProseMirror [style*="text-align: right"],
+.tiptap-content [style*="text-align: right"] {
+  text-align: right !important;
+}
+.ProseMirror [style*="text-align: justify"],
+.tiptap-content [style*="text-align: justify"] {
+  text-align: justify !important;
 }

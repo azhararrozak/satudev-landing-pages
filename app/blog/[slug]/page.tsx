@@ -181,7 +181,7 @@ export default function BlogDetailPage({ params }: PageProps) {
           )}
 
           <div
-            className="prose prose-lg prose-slate dark:prose-invert max-w-none
+            className="tiptap-content prose prose-lg prose-slate dark:prose-invert max-w-none
               prose-headings:font-bold prose-headings:text-slate-900 dark:prose-headings:text-white
               prose-p:text-slate-700 dark:prose-p:text-slate-300 prose-p:leading-relaxed
               prose-a:text-blue-600 dark:prose-a:text-blue-400 prose-a:no-underline hover:prose-a:underline
