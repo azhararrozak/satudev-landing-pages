@@ -1,12 +1,12 @@
 # AI Blog Article Generator
 
-Sistem automation untuk generate artikel blog menggunakan Puter.js AI API.
+Sistem automation untuk generate artikel blog menggunakan Google Gemini API (@google/genai) di sisi backend.
 
 ## 📁 Struktur Folder
 
 ```
 lib/ai/
-├── puter-client.ts          # Puter AI SDK client wrapper
+├── gemini-client.ts         # Gemini AI SDK client wrapper
 ├── blog-generator.ts         # Main generator service
 └── prompts/
     └── blog-prompts.ts       # Template prompts untuk berbagai kebutuhan
@@ -29,7 +29,7 @@ const article = await generateBlogArticle({
   keywords: ['react', 'hooks', 'useState'],
   targetAudience: 'developers',
   language: 'id',
-  model: 'gpt-5-nano'
+  model: 'gemini-3.5-flash'
 });
 
 console.log(article.title);
@@ -44,7 +44,7 @@ import { generateBlogArticleStream } from '@/lib/ai/blog-generator';
 
 for await (const chunk of generateBlogArticleStream({
   topic: 'Next.js 15 Features',
-  model: 'gemini-2.5-flash-lite'
+  model: 'gemini-3.5-flash'
 })) {
   console.log(chunk); // Real-time streaming
 }
@@ -58,7 +58,7 @@ import { generateTitleSuggestions } from '@/lib/ai/blog-generator';
 const titles = await generateTitleSuggestions(
   'Artificial Intelligence',
   'id',
-  'gpt-5-nano'
+  'gemini-3.5-flash'
 );
 // Returns: ['5 Cara Memahami AI...', 'Panduan Lengkap AI...', ...]
 ```
@@ -177,40 +177,39 @@ interface GenerationOptions {
   keywords: [],
   targetAudience: 'developers',
   language: 'id',
-  model: 'gpt-5-nano',
+  model: 'gemini-3.5-flash',
   useStreaming: false
 }
 ```
 
-## 🌐 Puter AI Integration
+## 🌐 Google Gemini AI Integration
 
 ### Client Initialization
 ```typescript
-import { puterAI } from '@/lib/ai/puter-client';
+import { geminiAI } from '@/lib/ai/gemini-client';
 
 // Auto-initialize on first use
-await puterAI.initialize();
+await geminiAI.initialize();
 
 // Check availability
-if (puterAI.isAvailable()) {
+if (geminiAI.isAvailable()) {
   // Ready to use
 }
 ```
 
 ### Direct API Call
 ```typescript
-const response = await puterAI.chat('Your prompt', {
-  model: 'gpt-5-nano',
+const response = await geminiAI.chat('Your prompt', {
+  model: 'gemini-3.5-flash',
   stream: false,
-  temperature: 0.7,
   max_tokens: 2000
 });
 ```
 
 ### Streaming API
 ```typescript
-for await (const chunk of puterAI.chatStream('Your prompt', {
-  model: 'gemini-2.5-flash-lite'
+for await (const chunk of geminiAI.chatStream('Your prompt', {
+  model: 'gemini-3.5-flash'
 })) {
   console.log(chunk);
 }

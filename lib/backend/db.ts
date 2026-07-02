@@ -4,6 +4,7 @@ import * as schema from "@/schema/auth-schema"
 
 // neonConfig.fetchConnectionCache = true;
 
-const sql = neon(process.env.DATABASE_URL!);
+const databaseUrl = process.env.DATABASE_URL || "postgres://mock:mock@localhost:5432/mock";
+const sql = neon(databaseUrl);
 export const db = drizzle(sql, { schema });
 

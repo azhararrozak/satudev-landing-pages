@@ -20,6 +20,7 @@ import {
   generateTitleSuggestions,
   type GenerationOptions,
 } from "@/lib/ai/blog-generator";
+import { geminiAI } from "@/lib/ai/gemini-client";
 
 interface AIGenerateDialogProps {
   children?: ReactNode;
@@ -27,6 +28,7 @@ interface AIGenerateDialogProps {
     title: string;
     content: string;
     excerpt: string;
+    featuredImage?: string;
   }) => void;
 }
 
@@ -45,7 +47,7 @@ export function AIGenerateDialog({ children, onGenerated }: AIGenerateDialogProp
     keywords: [],
     targetAudience: "developers",
     language: "id",
-    model: "gpt-5-nano",
+    model: "gemini-3.5-flash",
   });
 
   const [keywordInput, setKeywordInput] = useState("");
@@ -102,6 +104,10 @@ export function AIGenerateDialog({ children, onGenerated }: AIGenerateDialogProp
     setStreamedContent("");
 
     try {
+      let finalTitle = "";
+      let finalContent = "";
+      let finalExcerpt = "";
+
       if (useStreaming) {
         // Generate with streaming
         let fullContent = "";
@@ -110,21 +116,59 @@ export function AIGenerateDialog({ children, onGenerated }: AIGenerateDialogProp
           setStreamedContent(fullContent);
         }
 
-        // Parse the streamed content
-        onGenerated({
-          title: options.topic,
-          content: fullContent,
-          excerpt: fullContent.substring(0, 160),
-        });
-
-        toast.success("Artikel berhasil di-generate!");
+        finalTitle = options.topic;
+        finalContent = fullContent;
+        finalExcerpt = fullContent.substring(0, 160);
       } else {
         // Generate without streaming
         const result = await generateBlogArticle(options);
-        onGenerated(result);
-        toast.success("Artikel berhasil di-generate!");
+        finalTitle = result.title;
+        finalContent = result.content;
+        finalExcerpt = result.excerpt;
       }
 
+      // Auto-generate featured image based on the generated title
+      let featuredImageUrl = "";
+      try {
+        toast.info("Sedang menggenerasi gambar unggulan...");
+        const imagePrompt = `Blog post featured image, professional digital illustration for article titled: "${finalTitle}", modern, flat design style, clean background`;
+        
+        const imageBlob = await geminiAI.generateImage(imagePrompt, {
+          ratio: { w: 1024, h: 1024 }
+        });
+
+        if (imageBlob && imageBlob.size > 0) {
+          const formData = new FormData();
+          const fileName = `ai-generated-${Date.now()}.png`;
+          const file = new File([imageBlob], fileName, { type: 'image/png' });
+          formData.append('file', file);
+
+          const uploadResponse = await fetch('/api/upload/featured-image', {
+            method: 'POST',
+            body: formData,
+          });
+
+          if (uploadResponse.ok) {
+            const uploadData = await uploadResponse.json();
+            if (uploadData.success && uploadData.url) {
+              featuredImageUrl = uploadData.url;
+              toast.success("Gambar unggulan berhasil digenerasi!");
+            }
+          }
+        }
+      } catch (imgError) {
+        console.error("Failed to generate featured image:", imgError);
+        toast.error("Gagal generate gambar secara otomatis. Anda bisa menggenerasinya nanti secara manual.");
+      }
+
+      onGenerated({
+        title: finalTitle,
+        content: finalContent,
+        excerpt: finalExcerpt,
+        featuredImage: featuredImageUrl,
+      });
+
+      toast.success("Artikel berhasil di-generate!");
       setIsOpen(false);
       resetForm();
     } catch (error) {
@@ -145,7 +189,7 @@ export function AIGenerateDialog({ children, onGenerated }: AIGenerateDialogProp
       keywords: [],
       targetAudience: "developers",
       language: "id",
-      model: "gpt-5-nano",
+      model: "gemini-3.5-flash",
     });
     setKeywordInput("");
     setStreamedContent("");
@@ -158,7 +202,7 @@ export function AIGenerateDialog({ children, onGenerated }: AIGenerateDialogProp
         {children || (
           <Button variant="outline" className="gap-2">
             <Sparkles className="h-4 w-4" />
-            AI Generate
+            Gemini AI Generate
           </Button>
         )}
       </DialogTrigger>
@@ -167,7 +211,7 @@ export function AIGenerateDialog({ children, onGenerated }: AIGenerateDialogProp
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Sparkles className="h-5 w-5 text-purple-500" />
-            Generate Artikel dengan AI
+            Generate Artikel dengan Gemini AI
           </DialogTitle>
         </DialogHeader>
 
@@ -306,23 +350,6 @@ export function AIGenerateDialog({ children, onGenerated }: AIGenerateDialogProp
                 ))}
               </div>
             )}
-          </div>
-
-          {/* Model Selection */}
-          <div className="space-y-2">
-            <Label htmlFor="model">Model AI</Label>
-            <select
-              id="model"
-              value={options.model}
-              onChange={(e) =>
-                setOptions({ ...options, model: e.target.value })
-              }
-              className="w-full rounded-md border border-slate-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-slate-400"
-            >
-              <option value="gpt-5-nano">GPT-5 Nano (Fast)</option>
-              <option value="gemini-2.5-flash-lite">Gemini 2.5 Flash Lite</option>
-              <option value="claude-sonnet-4">Claude Sonnet 4</option>
-            </select>
           </div>
 
           {/* Language */}
