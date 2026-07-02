@@ -1,9 +1,36 @@
 "use client";
 
 import { useEditor, EditorContent } from "@tiptap/react";
+import { Extension } from "@tiptap/core";
 import { useEffect } from "react";
 import StarterKit from "@tiptap/starter-kit";
 import Placeholder from "@tiptap/extension-placeholder";
+import TextAlign from "@tiptap/extension-text-align";
+
+const LineHeight = Extension.create({
+  name: "lineHeight",
+  addGlobalAttributes() {
+    return [
+      {
+        types: ["paragraph", "heading"],
+        attributes: {
+          lineHeight: {
+            default: null,
+            parseHTML: (element) => element.style.lineHeight || null,
+            renderHTML: (attributes) => {
+              if (!attributes.lineHeight) {
+                return {};
+              }
+              return {
+                style: `line-height: ${attributes.lineHeight}`,
+              };
+            },
+          },
+        },
+      },
+    ];
+  },
+});
 import {
   Bold,
   Italic,
@@ -14,6 +41,10 @@ import {
   Redo,
   Heading2,
   Code,
+  AlignLeft,
+  AlignCenter,
+  AlignRight,
+  AlignJustify,
 } from "lucide-react";
 import { Button } from "./button";
 
@@ -39,6 +70,10 @@ export function TiptapEditor({
       Placeholder.configure({
         placeholder,
       }),
+      TextAlign.configure({
+        types: ["heading", "paragraph"],
+      }),
+      LineHeight,
     ],
     content,
     editorProps: {
@@ -135,6 +170,100 @@ export function TiptapEditor({
           className={editor.isActive("codeBlock") ? "bg-slate-200" : ""}
         >
           <Code className="h-4 w-4" />
+        </Button>
+
+        <div className="border-l border-slate-300 mx-1" />
+
+        <Button
+          type="button"
+          variant="ghost"
+          size="sm"
+          onClick={() => editor.chain().focus().setTextAlign("left").run()}
+          className={editor.isActive({ textAlign: "left" }) ? "bg-slate-200" : ""}
+          title="Align Left"
+        >
+          <AlignLeft className="h-4 w-4" />
+        </Button>
+
+        <Button
+          type="button"
+          variant="ghost"
+          size="sm"
+          onClick={() => editor.chain().focus().setTextAlign("center").run()}
+          className={editor.isActive({ textAlign: "center" }) ? "bg-slate-200" : ""}
+          title="Align Center"
+        >
+          <AlignCenter className="h-4 w-4" />
+        </Button>
+
+        <Button
+          type="button"
+          variant="ghost"
+          size="sm"
+          onClick={() => editor.chain().focus().setTextAlign("right").run()}
+          className={editor.isActive({ textAlign: "right" }) ? "bg-slate-200" : ""}
+          title="Align Right"
+        >
+          <AlignRight className="h-4 w-4" />
+        </Button>
+
+        <Button
+          type="button"
+          variant="ghost"
+          size="sm"
+          onClick={() => editor.chain().focus().setTextAlign("justify").run()}
+          className={editor.isActive({ textAlign: "justify" }) ? "bg-slate-200" : ""}
+          title="Align Justify"
+        >
+          <AlignJustify className="h-4 w-4" />
+        </Button>
+
+        <div className="border-l border-slate-300 mx-1" />
+
+        <Button
+          type="button"
+          variant="ghost"
+          size="sm"
+          onClick={() => {
+            const isActive = editor.isActive("paragraph", { lineHeight: "1.5" }) || editor.isActive("heading", { lineHeight: "1.5" });
+            const val = isActive ? null : "1.5";
+            editor.chain().focus()
+              .updateAttributes("paragraph", { lineHeight: val })
+              .updateAttributes("heading", { lineHeight: val })
+              .run();
+          }}
+          className={
+            (editor.isActive("paragraph", { lineHeight: "1.5" }) ||
+            editor.isActive("heading", { lineHeight: "1.5" }))
+              ? "bg-slate-200 font-bold text-slate-900"
+              : "text-slate-600 font-medium"
+          }
+          title="Line Height 1.5"
+        >
+          <span className="text-xs">1.5</span>
+        </Button>
+
+        <Button
+          type="button"
+          variant="ghost"
+          size="sm"
+          onClick={() => {
+            const isActive = editor.isActive("paragraph", { lineHeight: "2.0" }) || editor.isActive("heading", { lineHeight: "2.0" });
+            const val = isActive ? null : "2.0";
+            editor.chain().focus()
+              .updateAttributes("paragraph", { lineHeight: val })
+              .updateAttributes("heading", { lineHeight: val })
+              .run();
+          }}
+          className={
+            (editor.isActive("paragraph", { lineHeight: "2.0" }) ||
+            editor.isActive("heading", { lineHeight: "2.0" }))
+              ? "bg-slate-200 font-bold text-slate-900"
+              : "text-slate-600 font-medium"
+          }
+          title="Line Height 2.0"
+        >
+          <span className="text-xs">2.0</span>
         </Button>
 
         <div className="border-l border-slate-300 mx-1" />
