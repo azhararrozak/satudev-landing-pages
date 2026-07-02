@@ -14,7 +14,7 @@ import {
 import { Textarea } from "@/components/ui/textarea";
 import { Upload, Sparkles, Loader2, X } from "lucide-react";
 import { toast } from "sonner";
-import { puterAI } from "@/lib/ai/puter-client";
+import { geminiAI } from "@/lib/ai/gemini-client";
 import Image from "next/image";
 
 interface FeaturedImageUploadProps {
@@ -90,8 +90,8 @@ export function FeaturedImageUpload({ value, onChange }: FeaturedImageUploadProp
     try {
       console.log('Starting AI image generation with prompt:', imagePrompt);
       
-      // Generate image with Puter AI
-      const imageBlob = await puterAI.generateImage(imagePrompt, {
+      // Generate image with Gemini AI
+      const imageBlob = await geminiAI.generateImage(imagePrompt, {
         provider: 'openai-image-generation',
         model: 'gpt-image-1-mini',
         quality: 'low',

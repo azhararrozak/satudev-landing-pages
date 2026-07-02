@@ -3,7 +3,7 @@
  * Main service untuk generate artikel menggunakan Puter AI
  */
 
-import { puterAI } from './puter-client';
+import { geminiAI } from './gemini-client';
 import {
   generateFullArticlePrompt,
   generateTitlePrompt,
@@ -31,7 +31,7 @@ export interface GenerationOptions extends BlogPromptParams {
 export async function generateBlogArticle(
   options: GenerationOptions
 ): Promise<GeneratedArticle> {
-  const { topic, language = 'id', model = 'gpt-5-nano', ...promptParams } = options;
+  const { topic, language = 'id', model = 'gemini-3.5-flash', ...promptParams } = options;
 
   if (!topic) {
     throw new Error('Topic is required for article generation');
@@ -48,7 +48,7 @@ export async function generateBlogArticle(
 
     const fullPrompt = `${systemPrompt}\n\n${articlePrompt}`;
 
-    const response = await puterAI.chat(fullPrompt, { model });
+    const response = await geminiAI.chat(fullPrompt, { model });
 
     // Parse response untuk extract title, content, dan excerpt
     const parsed = parseGeneratedArticle(response);
@@ -66,7 +66,7 @@ export async function generateBlogArticle(
 export async function* generateBlogArticleStream(
   options: GenerationOptions
 ): AsyncGenerator<string> {
-  const { topic, language = 'id', model = 'gemini-2.5-flash-lite', ...promptParams } = options;
+  const { topic, language = 'id', model = 'gemini-3.5-flash', ...promptParams } = options;
 
   if (!topic) {
     throw new Error('Topic is required for article generation');
@@ -81,7 +81,7 @@ export async function* generateBlogArticleStream(
 
   const fullPrompt = `${systemPrompt}\n\n${articlePrompt}`;
 
-  for await (const chunk of puterAI.chatStream(fullPrompt, { model })) {
+  for await (const chunk of geminiAI.chatStream(fullPrompt, { model })) {
     yield chunk;
   }
 }
@@ -92,10 +92,10 @@ export async function* generateBlogArticleStream(
 export async function generateTitleSuggestions(
   topic: string,
   language: 'id' | 'en' = 'id',
-  model: string = 'gpt-5-nano'
+  model: string = 'gemini-3.5-flash'
 ): Promise<string[]> {
   const prompt = generateTitlePrompt(topic, language);
-  const response = await puterAI.chat(prompt, { model });
+  const response = await geminiAI.chat(prompt, { model });
 
   // Parse response to extract titles
   const titles = response
@@ -114,10 +114,10 @@ export async function generateExcerpt(
   title: string,
   content: string,
   language: 'id' | 'en' = 'id',
-  model: string = 'gpt-5-nano'
+  model: string = 'gemini-3.5-flash'
 ): Promise<string> {
   const prompt = generateExcerptPrompt(title, content, language);
-  const response = await puterAI.chat(prompt, { model });
+  const response = await geminiAI.chat(prompt, { model });
 
   // Clean up response
   return response.trim().replace(/^["']|["']$/g, '');
@@ -130,10 +130,10 @@ export async function improveContent(
   content: string,
   improvement: 'grammar' | 'seo' | 'engagement' | 'readability',
   language: 'id' | 'en' = 'id',
-  model: string = 'gpt-5-nano'
+  model: string = 'gemini-3.5-flash'
 ): Promise<string> {
   const prompt = generateImprovePrompt(content, improvement, language);
-  return await puterAI.chat(prompt, { model });
+  return await geminiAI.chat(prompt, { model });
 }
 
 /**
@@ -143,10 +143,10 @@ export async function expandSection(
   section: string,
   context: string,
   language: 'id' | 'en' = 'id',
-  model: string = 'gpt-5-nano'
+  model: string = 'gemini-3.5-flash'
 ): Promise<string> {
   const prompt = generateExpandPrompt(section, context, language);
-  return await puterAI.chat(prompt, { model });
+  return await geminiAI.chat(prompt, { model });
 }
 
 /**
@@ -200,5 +200,5 @@ function parseGeneratedArticle(response: string): GeneratedArticle {
  * Check if Puter AI is available
  */
 export function isAIAvailable(): boolean {
-  return puterAI.isAvailable();
+  return geminiAI.isAvailable();
 }

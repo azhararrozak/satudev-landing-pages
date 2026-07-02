@@ -118,6 +118,7 @@ export default function NewPostPage() {
               title: data.title,
               content: data.content,
               excerpt: data.excerpt || formData.excerpt,
+              featuredImage: data.featuredImage || formData.featuredImage,
             });
             toast.success("Article generated successfully! Review and edit as needed.");
           }}
