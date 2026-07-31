@@ -10,10 +10,12 @@ import { useUser, useAuthSync } from "@/lib/hooks/use-auth";
 
 const nav = [
   { href: "/dashboard", label: "Home" },
+  { href: "/dashboard/projects", label: "Projects" },
   { href: "/dashboard/posts", label: "Post" },
   { href: "/dashboard/comments", label: "Komen" },
   { href: "/dashboard/categories", label: "Category" },
   { href: "/dashboard/tags", label: "Tag" },
+  { href: "/dashboard/profile", label: "Profile" },
 ];
 
 export default function DashboardLayout({ children }: { children: ReactNode }) {

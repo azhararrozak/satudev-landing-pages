@@ -1,12 +1,29 @@
 "use client"
 
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import Image from 'next/image'
 import { useLanguage } from '@/components/providers/LanguageProvider'
 import { motion } from 'framer-motion'
 
 export default function AboutTemplate() {
   const { t } = useLanguage();
+  const [projectCount, setProjectCount] = useState<number>(5);
+
+  useEffect(() => {
+    async function fetchProjectCount() {
+      try {
+        const res = await fetch('/api/projects');
+        if (!res.ok) return;
+        const data = await res.json();
+        if (typeof data.total === 'number' && data.total > 0) {
+          setProjectCount(data.total);
+        }
+      } catch (error) {
+        console.error('Failed to fetch project count for About section:', error);
+      }
+    }
+    fetchProjectCount();
+  }, []);
 
   const containerVariants = {
     hidden: { opacity: 0 },
@@ -63,7 +80,7 @@ export default function AboutTemplate() {
                 </motion.div>
                 <motion.div variants={itemVariants} className="flex gap-4 w-full md:w-auto justify-between">
                   <div className="text-center">
-                    <h3 className="text-3xl font-bold">5+</h3>
+                    <h3 className="text-3xl font-bold">{projectCount}+</h3>
                     <p className="text-sm text-muted-foreground">{t("about.projectsCompleted")}</p>
                   </div>
                   <div className="text-center">
