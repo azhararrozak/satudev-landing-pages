@@ -3,7 +3,6 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useUser } from "@/lib/hooks/use-auth";
-import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
@@ -138,95 +137,109 @@ export default function EditPostPage({ params }: PageProps) {
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center min-h-[400px]">
-        <Loader2 className="h-8 w-8 animate-spin text-slate-600" />
+      <div className="space-y-6">
+        <div className="rounded-[24px] border border-[#dfdfe0] bg-white p-6 sm:p-8 flex items-center gap-4">
+          <div className="h-9 w-9 rounded-full bg-[#e8eefc] animate-pulse" />
+          <div className="space-y-2">
+            <div className="h-7 w-44 rounded-[12px] bg-[#e8eefc] animate-pulse" />
+            <div className="h-4 w-56 rounded-full bg-[#e8eefc]/70 animate-pulse" />
+          </div>
+        </div>
+        <div className="rounded-[24px] border border-[#dfdfe0] bg-white p-6 sm:p-8 space-y-4">
+          <div className="h-10 rounded-[12px] bg-[#e8eefc]/60 animate-pulse" />
+          <div className="h-40 rounded-[12px] bg-[#e8eefc]/40 animate-pulse" />
+        </div>
       </div>
     );
   }
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center gap-4">
-        <Button
-          variant="ghost"
-          size="sm"
+      <div className="flex items-center gap-3.5 rounded-[24px] border border-[#dfdfe0] bg-white p-6 sm:p-8">
+        <button
+          type="button"
           onClick={() => router.back()}
+          aria-label="Kembali"
+          className="flex h-9 w-9 items-center justify-center rounded-full border border-[#dfdfe0] bg-white text-[#002253] transition hover:bg-[#e8eefc]"
         >
-          <ArrowLeft className="h-4 w-4 mr-2" />
-          Back
-        </Button>
+          <ArrowLeft aria-hidden="true" className="h-4 w-4" />
+        </button>
         <div>
-          <h1 className="text-3xl font-bold text-slate-900">Edit Post</h1>
-          <p className="text-slate-600 mt-1">Update your blog post</p>
+          <h1 className="text-[24px] sm:text-[28px] font-extrabold tracking-[-0.5px] leading-tight text-[#002253]">
+            Sunting Artikel
+          </h1>
+          <p className="mt-0.5 text-sm font-medium text-[#66666b]">
+            Perbarui konten dan status publikasi artikel
+          </p>
         </div>
       </div>
 
-      <form onSubmit={handleSubmit} className="space-y-6 bg-white rounded-lg shadow p-6">
+      <form onSubmit={handleSubmit} className="space-y-6 rounded-[24px] border border-[#dfdfe0] bg-white p-6 sm:p-8">
         <div className="space-y-2">
-          <Label htmlFor="title">Title *</Label>
+          <Label htmlFor="title" className="text-[#002253]">Judul Artikel *</Label>
           <Input
             id="title"
             value={formData.title}
             onChange={(e) =>
               setFormData({ ...formData, title: e.target.value })
             }
-            placeholder="Enter post title"
+            placeholder="Masukkan judul artikel"
             required
           />
-          <p className="text-xs text-slate-500">
-            Slug will be automatically generated from the title
+          <p className="text-xs text-[#66666b]">
+            Slug URL diperbarui otomatis mengikuti judul artikel.
           </p>
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="excerpt">Excerpt</Label>
+          <Label htmlFor="excerpt" className="text-[#002253]">Ringkasan Singkat</Label>
           <Textarea
             id="excerpt"
             value={formData.excerpt}
             onChange={(e) =>
               setFormData({ ...formData, excerpt: e.target.value })
             }
-            placeholder="Brief description of the post (optional)"
+            placeholder="Deskripsi singkat artikel (opsional)"
             rows={3}
           />
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="content">Content *</Label>
+          <Label htmlFor="content" className="text-[#002253]">Isi Artikel *</Label>
           <TiptapEditor
             content={formData.content}
             onChange={(content) =>
               setFormData({ ...formData, content })
             }
-            placeholder="Write your post content here..."
+            placeholder="Tulis isi artikel di sini..."
           />
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div className="space-y-2">
-            <Label htmlFor="featuredImage">Featured Image URL</Label>
+            <Label htmlFor="featuredImage" className="text-[#002253]">URL Gambar Utama</Label>
             <Input
               id="featuredImage"
               value={formData.featuredImage}
               onChange={(e) =>
                 setFormData({ ...formData, featuredImage: e.target.value })
               }
-              placeholder="https://example.com/image.jpg"
+              placeholder="https://satudev.web.id/image.jpg"
               type="text"
             />
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="categoryId">Category</Label>
+            <Label htmlFor="categoryId" className="text-[#002253]">Kategori</Label>
             <select
               id="categoryId"
               value={formData.categoryId}
               onChange={(e) =>
                 setFormData({ ...formData, categoryId: e.target.value })
               }
-              className="w-full rounded-md border border-slate-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-slate-400"
+              className="w-full h-11 rounded-[24px] border border-[#dfdfe0] bg-white px-4 text-sm font-medium text-[#002253] focus:outline-none focus:ring-2 focus:ring-[#0540ad]"
             >
-              <option value="">Select category (optional)</option>
+              <option value="">Pilih kategori (opsional)</option>
               {categories.map((category) => (
                 <option key={category.id} value={category.id}>
                   {category.name}
@@ -245,38 +258,42 @@ export default function EditPostPage({ params }: PageProps) {
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="status">Status</Label>
+          <Label htmlFor="status" className="text-[#002253]">Status Publikasi</Label>
           <select
             id="status"
             value={formData.status}
             onChange={(e) =>
               setFormData({ ...formData, status: e.target.value })
             }
-            className="w-full rounded-md border border-slate-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-slate-400"
+            className="w-full h-11 rounded-[24px] border border-[#dfdfe0] bg-white px-4 text-sm font-medium text-[#002253] focus:outline-none focus:ring-2 focus:ring-[#0540ad]"
           >
-            <option value="draft">Draft</option>
-            <option value="published">Published</option>
+            <option value="draft">Draf</option>
+            <option value="published">Tayang</option>
           </select>
-          <p className="text-xs text-slate-500">
-            Published posts will be visible to the public
+          <p className="text-xs text-[#66666b]">
+            Artikel berstatus Tayang akan tampil di halaman blog publik.
           </p>
         </div>
 
-        <div className="flex justify-end gap-3 pt-4 border-t">
-          <Button
+        <div className="flex flex-wrap justify-end gap-3 pt-4 border-t border-[#dfdfe0]">
+          <button
             type="button"
-            variant="outline"
             onClick={() => router.back()}
             disabled={isSubmitting}
+            className="inline-flex h-10 items-center rounded-[24px] border border-[#dfdfe0] bg-white px-5 text-sm font-medium text-[#002253] transition hover:bg-[#e8eefc]/60 disabled:opacity-50"
           >
-            Cancel
-          </Button>
-          <Button type="submit" disabled={isSubmitting}>
+            Batal
+          </button>
+          <button
+            type="submit"
+            disabled={isSubmitting}
+            className="inline-flex h-10 items-center gap-2 rounded-[24px] bg-[#0540ad] px-6 text-sm font-medium text-white transition hover:bg-[#043591] disabled:opacity-50"
+          >
             {isSubmitting && (
-              <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+              <Loader2 aria-hidden="true" className="h-4 w-4 animate-spin" />
             )}
-            Update Post
-          </Button>
+            <span>Perbarui Artikel</span>
+          </button>
         </div>
       </form>
     </div>

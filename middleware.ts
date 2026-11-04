@@ -1,8 +1,44 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 
+function getSafeCallbackUrl(rawUrl: string | null): string | null {
+  if (
+    rawUrl &&
+    rawUrl.startsWith('/') &&
+    !rawUrl.startsWith('//') &&
+    !rawUrl.startsWith('/auth')
+  ) {
+    return rawUrl;
+  }
+  return null;
+}
+
+function getCachedRoleFromCookies(request: NextRequest): string | null {
+  const rawSessionData =
+    request.cookies.get('__Secure-better-auth.session_data')?.value ||
+    request.cookies.get('better-auth.session_data')?.value;
+
+  if (!rawSessionData) {
+    return null;
+  }
+
+  try {
+    const normalized = rawSessionData.replace(/-/g, '+').replace(/_/g, '/');
+    const padded = normalized.padEnd(Math.ceil(normalized.length / 4) * 4, '=');
+    const decoded = atob(padded);
+    const parsed = JSON.parse(decoded) as {
+      session?: { user?: { role?: string } };
+      user?: { role?: string };
+    };
+    const role = parsed?.session?.user?.role || parsed?.user?.role;
+    return typeof role === 'string' ? role.trim().toLowerCase() : null;
+  } catch {
+    return null;
+  }
+}
+
 export async function middleware(request: NextRequest) {
-  const { pathname } = request.nextUrl;
+  const { pathname, searchParams } = request.nextUrl;
 
   // Get session token from cookies
   // In production (HTTPS), Better Auth uses __Secure- prefix
@@ -39,10 +75,19 @@ export async function middleware(request: NextRequest) {
   //   });
   // }
 
-  // Auth pages - redirect to homepage if already logged in
+  // Auth pages - redirect to callbackUrl, dashboard (for admin/penulis), or homepage if already logged in
   if (pathname === '/auth/signin' || pathname === '/auth/register') {
     if (hasSession) {
-      return NextResponse.redirect(new URL('/', request.url));
+      const safeCallback = getSafeCallbackUrl(searchParams.get('callbackUrl'));
+      const cachedRole = getCachedRoleFromCookies(request);
+      const isStaff = cachedRole === 'admin' || cachedRole === 'penulis';
+
+      if (safeCallback && (isStaff || !safeCallback.startsWith('/dashboard'))) {
+        return NextResponse.redirect(new URL(safeCallback, request.url));
+      }
+
+      const defaultTarget = isStaff ? '/dashboard' : '/';
+      return NextResponse.redirect(new URL(defaultTarget, request.url));
     }
     return NextResponse.next();
   }

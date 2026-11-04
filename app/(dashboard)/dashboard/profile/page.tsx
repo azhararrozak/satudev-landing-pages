@@ -1,11 +1,11 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { Suspense, useState, useEffect } from "react";
+import { useSearchParams } from "next/navigation";
 import { useUser } from "@/lib/hooks/use-auth";
 import { authClient } from "@/lib/auth-client";
 import { UserRoleBadge } from "@/components/auth/UserRoleBadge";
 import { getRoleDisplayName } from "@/lib/rbac";
-import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
@@ -19,17 +19,36 @@ import {
   Loader2,
   Copy,
   Check,
-  Sparkles,
   Lock,
   BadgeCheck,
   UserCheck,
 } from "lucide-react";
 
-export default function ProfilePage() {
+function ProfilePageSkeleton() {
+  return (
+    <div className="space-y-6">
+      <div className="rounded-[24px] border border-[#dfdfe0] bg-white p-6 sm:p-8 flex items-center gap-6">
+        <div className="h-24 w-24 rounded-full bg-[#e8eefc] animate-pulse flex-shrink-0" />
+        <div className="space-y-2.5 flex-1">
+          <div className="h-7 w-48 rounded-[12px] bg-[#e8eefc] animate-pulse" />
+          <div className="h-4 w-64 max-w-full rounded-full bg-[#e8eefc]/70 animate-pulse" />
+        </div>
+      </div>
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        {[1, 2, 3].map((item) => (
+          <div key={item} className="h-24 rounded-[24px] bg-[#e8eefc]/60 animate-pulse" />
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function ProfileContent() {
   const { user, isLoading: isAuthLoading } = useUser();
+  const searchParams = useSearchParams();
 
   const [activeTab, setActiveTab] = useState<"general" | "security" | "overview">("general");
-  
+
   // Profile edit state
   const [name, setName] = useState("");
   const [image, setImage] = useState("");
@@ -46,13 +65,19 @@ export default function ProfilePage() {
   const [copiedId, setCopiedId] = useState(false);
 
   useEffect(() => {
+    const tab = searchParams.get("tab");
+    if (tab === "security" || tab === "overview" || tab === "general") {
+      setActiveTab(tab);
+    }
+  }, [searchParams]);
+
+  useEffect(() => {
     if (user) {
       setName(user.name || "");
       setImage(user.image || "");
     }
   }, [user]);
 
-  // Handle avatar upload via existing upload API
   const handleAvatarUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -71,7 +96,7 @@ export default function ProfilePage() {
       if (!res.ok) throw new Error(result.error || "Failed to upload avatar");
 
       setImage(result.url);
-      toast.success("Avatar image uploaded! Click Save to apply changes.");
+      toast.success("Foto profil diunggah. Klik Simpan Perubahan untuk menerapkan.");
     } catch (error) {
       console.error("Avatar upload error:", error);
       toast.error(error instanceof Error ? error.message : "Failed to upload avatar");
@@ -80,7 +105,6 @@ export default function ProfilePage() {
     }
   };
 
-  // Handle profile update
   const handleUpdateProfile = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!user) return;
@@ -96,8 +120,7 @@ export default function ProfilePage() {
         throw new Error(res.error.message || "Failed to update profile");
       }
 
-      toast.success("Profile updated successfully!");
-      // Trigger custom auth sync event so navbar & stores update immediately
+      toast.success("Profil berhasil diperbarui");
       window.dispatchEvent(new Event("auth-change"));
     } catch (error) {
       console.error("Update profile error:", error);
@@ -107,21 +130,20 @@ export default function ProfilePage() {
     }
   };
 
-  // Handle password change
   const handleChangePassword = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!currentPassword || !newPassword || !confirmPassword) {
-      toast.error("Please fill in all password fields.");
+      toast.error("Mohon lengkapi seluruh kolom kata sandi.");
       return;
     }
 
     if (newPassword !== confirmPassword) {
-      toast.error("New password and confirm password do not match.");
+      toast.error("Kata sandi baru dan konfirmasi tidak cocok.");
       return;
     }
 
     if (newPassword.length < 6) {
-      toast.error("New password must be at least 6 characters long.");
+      toast.error("Kata sandi baru minimal 6 karakter.");
       return;
     }
 
@@ -137,7 +159,7 @@ export default function ProfilePage() {
         throw new Error(res.error.message || "Failed to change password");
       }
 
-      toast.success("Password changed successfully!");
+      toast.success("Kata sandi berhasil diperbarui");
       setCurrentPassword("");
       setNewPassword("");
       setConfirmPassword("");
@@ -152,22 +174,18 @@ export default function ProfilePage() {
   const copyToClipboard = (text: string) => {
     navigator.clipboard.writeText(text);
     setCopiedId(true);
-    toast.success("User ID copied to clipboard!");
+    toast.success("ID Pengguna disalin ke papan klip");
     setTimeout(() => setCopiedId(false), 2000);
   };
 
   if (isAuthLoading) {
-    return (
-      <div className="flex items-center justify-center min-h-[400px]">
-        <Loader2 className="h-8 w-8 animate-spin text-slate-600" />
-      </div>
-    );
+    return <ProfilePageSkeleton />;
   }
 
   if (!user) {
     return (
-      <div className="p-8 text-center text-slate-600">
-        User not logged in.
+      <div className="rounded-[24px] border border-[#dfdfe0] bg-white p-8 text-center text-sm font-medium text-[#66666b]">
+        Sesi pengguna tidak ditemukan.
       </div>
     );
   }
@@ -178,19 +196,15 @@ export default function ProfilePage() {
         month: "long",
         year: "numeric",
       })
-    : "N/A";
+    : "-";
 
   return (
     <div className="space-y-6">
-      {/* Top Banner & Header Card */}
-      <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-slate-900 via-slate-800 to-indigo-950 p-6 md:p-8 text-white shadow-lg">
-        <div className="absolute -right-10 -top-10 h-40 w-40 rounded-full bg-indigo-500/10 blur-3xl" />
-        <div className="absolute -left-10 -bottom-10 h-40 w-40 rounded-full bg-purple-500/10 blur-3xl" />
-
-        <div className="relative z-10 flex flex-col md:flex-row items-center md:items-start gap-6">
-          {/* Avatar with Overlay Upload Button */}
-          <div className="relative group">
-            <div className="h-24 w-24 md:h-28 md:w-28 rounded-full border-4 border-white/20 shadow-xl overflow-hidden bg-slate-800 flex items-center justify-center text-3xl font-bold text-white">
+      {/* Gamma Hero Profile Card */}
+      <section className="rounded-[24px] border border-[#dfdfe0] bg-white p-6 sm:p-8">
+        <div className="flex flex-col sm:flex-row items-center sm:items-start gap-6">
+          <div className="relative flex-shrink-0">
+            <div className="h-24 w-24 sm:h-28 sm:w-28 rounded-full border border-[#d0e6fe] overflow-hidden bg-[#e8eefc] flex items-center justify-center text-3xl font-bold text-[#002253]">
               {image ? (
                 // eslint-disable-next-line @next/next/no-img-element
                 <img
@@ -205,14 +219,15 @@ export default function ProfilePage() {
 
             <label
               htmlFor="avatar-upload"
-              className="absolute bottom-0 right-0 p-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-full shadow-md cursor-pointer transition transform hover:scale-105"
-              title="Change Profile Picture"
+              className="absolute bottom-0 right-0 flex h-9 w-9 items-center justify-center rounded-full border border-[#dfdfe0] bg-white text-[#002253] shadow-sm cursor-pointer transition hover:bg-[#e8eefc]"
+              title="Ubah Foto Profil"
             >
               {isUploadingImage ? (
-                <Loader2 className="h-4 w-4 animate-spin" />
+                <Loader2 aria-hidden="true" className="h-4 w-4 animate-spin text-[#0540ad]" />
               ) : (
-                <Camera className="h-4 w-4" />
+                <Camera aria-hidden="true" className="h-4 w-4" />
               )}
+              <span className="sr-only">Unggah foto profil baru</span>
             </label>
             <input
               type="file"
@@ -223,279 +238,303 @@ export default function ProfilePage() {
             />
           </div>
 
-          {/* User Info Details */}
-          <div className="flex-1 text-center md:text-left space-y-2">
-            <div className="flex flex-wrap items-center justify-center md:justify-start gap-3">
-              <h1 className="text-2xl md:text-3xl font-bold tracking-tight">{user.name}</h1>
+          <div className="flex-1 text-center sm:text-left space-y-2.5 pt-1">
+            <div className="flex flex-wrap items-center justify-center sm:justify-start gap-3">
+              <h1 className="text-[26px] sm:text-[30px] font-extrabold tracking-[-0.6px] leading-tight text-[#002253]">
+                {user.name}
+              </h1>
               <UserRoleBadge />
             </div>
 
-            <div className="flex flex-wrap items-center justify-center md:justify-start gap-4 text-sm text-slate-300">
-              <span className="flex items-center gap-1.5">
-                <Mail className="h-4 w-4 text-indigo-400" />
-                {user.email}
+            <div className="flex flex-wrap items-center justify-center sm:justify-start gap-x-5 gap-y-2 text-sm font-medium text-[#66666b]">
+              <span className="inline-flex items-center gap-1.5">
+                <Mail aria-hidden="true" className="h-4 w-4 text-[#0540ad]" />
+                <span>{user.email}</span>
               </span>
-              <span className="flex items-center gap-1.5">
-                <BadgeCheck className="h-4 w-4 text-emerald-400" />
-                {user.emailVerified ? "Verified Email" : "Active Account"}
+              <span className="inline-flex items-center gap-1.5">
+                <BadgeCheck aria-hidden="true" className="h-4 w-4 text-[#0540ad]" />
+                <span>{user.emailVerified ? "Email Terverifikasi" : "Akun Aktif"}</span>
               </span>
-              <span className="flex items-center gap-1.5">
-                <Calendar className="h-4 w-4 text-purple-400" />
-                Joined {joinDate}
+              <span className="inline-flex items-center gap-1.5 gamma-tabular">
+                <Calendar aria-hidden="true" className="h-4 w-4 text-[#0540ad]" />
+                <span>Bergabung {joinDate}</span>
               </span>
             </div>
           </div>
         </div>
-      </div>
+      </section>
 
-      {/* Quick Summary Grid */}
+      {/* Gamma Pastel Summary Tiles */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <div className="bg-white rounded-xl border p-4 shadow-sm flex items-center gap-4">
-          <div className="p-3 bg-indigo-50 text-indigo-600 rounded-xl">
-            <ShieldCheck className="h-6 w-6" />
-          </div>
+        <div className="rounded-[24px] border border-[#b9d5fc] bg-[#d0e6fe] p-5 flex items-center gap-4">
+          <span className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-white text-[#002253]">
+            <ShieldCheck aria-hidden="true" className="h-5 w-5" />
+          </span>
           <div>
-            <p className="text-xs font-medium text-slate-500 uppercase tracking-wider">User Role</p>
-            <p className="text-base font-semibold text-slate-900">{getRoleDisplayName(user.role)}</p>
+            <p className="text-[11px] font-bold uppercase tracking-[0.5px] text-[#243f6b]">
+              Peran Akun
+            </p>
+            <p className="mt-0.5 text-[16px] font-bold text-[#002253]">
+              {getRoleDisplayName(user.role)}
+            </p>
           </div>
         </div>
 
-        <div className="bg-white rounded-xl border p-4 shadow-sm flex items-center gap-4">
-          <div className="p-3 bg-emerald-50 text-emerald-600 rounded-xl">
-            <UserCheck className="h-6 w-6" />
-          </div>
+        <div className="rounded-[24px] border border-[#d5e1fa] bg-[#e8eefc] p-5 flex items-center gap-4">
+          <span className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-white text-[#002253]">
+            <UserCheck aria-hidden="true" className="h-5 w-5" />
+          </span>
           <div>
-            <p className="text-xs font-medium text-slate-500 uppercase tracking-wider">Account Status</p>
-            <p className="text-base font-semibold text-emerald-600">Active & Verified</p>
+            <p className="text-[11px] font-bold uppercase tracking-[0.5px] text-[#243f6b]">
+              Status Sesi
+            </p>
+            <p className="mt-0.5 text-[16px] font-bold text-[#002253]">
+              Aktif & Terotentikasi
+            </p>
           </div>
         </div>
 
-        <div className="bg-white rounded-xl border p-4 shadow-sm flex items-center gap-4">
-          <div className="p-3 bg-purple-50 text-purple-600 rounded-xl">
-            <Sparkles className="h-6 w-6" />
-          </div>
+        <div className="rounded-[24px] border border-[#d5e1fa] bg-[#e8eefc] p-5 flex items-center gap-4">
+          <span className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-white text-[#002253]">
+            <Key aria-hidden="true" className="h-5 w-5" />
+          </span>
           <div>
-            <p className="text-xs font-medium text-slate-500 uppercase tracking-wider">Access Rights</p>
-            <p className="text-base font-semibold text-slate-900">
-              {user.role === "admin" ? "Full Control" : user.role === "penulis" ? "Content Creator" : "Standard Access"}
+            <p className="text-[11px] font-bold uppercase tracking-[0.5px] text-[#243f6b]">
+              Cakupan Hak Akses
+            </p>
+            <p className="mt-0.5 text-[16px] font-bold text-[#002253]">
+              {user.role === "admin"
+                ? "Kontrol Penuh"
+                : user.role === "penulis"
+                ? "Kreator Konten"
+                : "Akses Standar"}
             </p>
           </div>
         </div>
       </div>
 
-      {/* Main Tabs Navigation & Content */}
-      <div className="bg-white rounded-2xl border shadow-sm overflow-hidden">
-        {/* Navigation Bar */}
-        <div className="border-b bg-slate-50/50 px-6 pt-4 flex gap-6 overflow-x-auto">
+      {/* Tabs Card */}
+      <div className="overflow-hidden rounded-[24px] border border-[#dfdfe0] bg-white">
+        <div
+          role="tablist"
+          aria-label="Pengaturan profil akun"
+          className="flex gap-2 overflow-x-auto border-b border-[#dfdfe0] bg-[#f8faff] px-4 py-3 sm:px-6"
+        >
           <button
+            type="button"
+            role="tab"
+            aria-selected={activeTab === "general"}
             onClick={() => setActiveTab("general")}
-            className={`pb-3 text-sm font-semibold border-b-2 flex items-center gap-2 transition whitespace-nowrap ${
+            className={`inline-flex h-9 items-center gap-2 rounded-full px-4 text-sm whitespace-nowrap transition ${
               activeTab === "general"
-                ? "border-slate-900 text-slate-900"
-                : "border-transparent text-slate-500 hover:text-slate-700"
+                ? "bg-[#e8eefc] font-bold text-[#002253]"
+                : "font-medium text-[#66666b] hover:bg-white hover:text-[#002253]"
             }`}
           >
-            <User className="h-4 w-4" />
-            General Profile
+            <User aria-hidden="true" className="h-4 w-4" />
+            <span>Profil Umum</span>
           </button>
 
           <button
+            type="button"
+            role="tab"
+            aria-selected={activeTab === "security"}
             onClick={() => setActiveTab("security")}
-            className={`pb-3 text-sm font-semibold border-b-2 flex items-center gap-2 transition whitespace-nowrap ${
+            className={`inline-flex h-9 items-center gap-2 rounded-full px-4 text-sm whitespace-nowrap transition ${
               activeTab === "security"
-                ? "border-slate-900 text-slate-900"
-                : "border-transparent text-slate-500 hover:text-slate-700"
+                ? "bg-[#e8eefc] font-bold text-[#002253]"
+                : "font-medium text-[#66666b] hover:bg-white hover:text-[#002253]"
             }`}
           >
-            <Key className="h-4 w-4" />
-            Security & Password
+            <Key aria-hidden="true" className="h-4 w-4" />
+            <span>Keamanan & Sandi</span>
           </button>
 
           <button
+            type="button"
+            role="tab"
+            aria-selected={activeTab === "overview"}
             onClick={() => setActiveTab("overview")}
-            className={`pb-3 text-sm font-semibold border-b-2 flex items-center gap-2 transition whitespace-nowrap ${
+            className={`inline-flex h-9 items-center gap-2 rounded-full px-4 text-sm whitespace-nowrap transition ${
               activeTab === "overview"
-                ? "border-slate-900 text-slate-900"
-                : "border-transparent text-slate-500 hover:text-slate-700"
+                ? "bg-[#e8eefc] font-bold text-[#002253]"
+                : "font-medium text-[#66666b] hover:bg-white hover:text-[#002253]"
             }`}
           >
-            <ShieldCheck className="h-4 w-4" />
-            Account Overview
+            <ShieldCheck aria-hidden="true" className="h-4 w-4" />
+            <span>Ringkasan Akun</span>
           </button>
         </div>
 
-        {/* Tab Content */}
-        <div className="p-6">
-          {/* Tab 1: General Profile */}
+        <div className="p-6 sm:p-8">
           {activeTab === "general" && (
             <form onSubmit={handleUpdateProfile} className="max-w-xl space-y-5">
               <div className="space-y-2">
-                <Label htmlFor="name" className="text-slate-700">Display Name</Label>
+                <Label htmlFor="name" className="text-[#002253]">Nama Tampilan</Label>
                 <Input
                   id="name"
                   type="text"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
-                  placeholder="Enter your full name"
+                  placeholder="Masukkan nama lengkap"
                   required
                 />
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="email" className="text-slate-700">Email Address</Label>
+                <Label htmlFor="email" className="text-[#002253]">Alamat Email</Label>
                 <div className="relative">
                   <Input
                     id="email"
                     type="email"
                     value={user.email}
                     disabled
-                    className="bg-slate-50 text-slate-500 cursor-not-allowed pr-10"
+                    className="bg-[#f8faff] text-[#66666b] cursor-not-allowed pr-10"
                   />
-                  <Lock className="h-4 w-4 absolute right-3 top-3 text-slate-400" />
+                  <Lock aria-hidden="true" className="h-4 w-4 absolute right-3.5 top-3 text-[#66666b]" />
                 </div>
-                <p className="text-xs text-slate-500">
-                  Email address is linked to your authentication credentials.
+                <p className="text-xs text-[#66666b]">
+                  Alamat email terhubung langsung dengan kredensial otentikasi akun Anda.
                 </p>
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="avatar-url" className="text-slate-700">Profile Picture URL</Label>
+                <Label htmlFor="avatar-url" className="text-[#002253]">URL Foto Profil</Label>
                 <Input
                   id="avatar-url"
                   type="text"
                   value={image}
                   onChange={(e) => setImage(e.target.value)}
-                  placeholder="https://example.com/avatar.jpg"
+                  placeholder="https://satudev.web.id/avatar.jpg"
                 />
-                <p className="text-xs text-slate-500">
-                  Provide an image URL or use the camera icon on your avatar banner above to upload a local file.
+                <p className="text-xs text-[#66666b]">
+                  Masukkan URL gambar atau gunakan tombol kamera pada foto profil di atas.
                 </p>
               </div>
 
               <div className="pt-2">
-                <Button type="submit" disabled={isUpdatingProfile || isUploadingImage}>
-                  {isUpdatingProfile ? (
-                    <>
-                      <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                      Saving Changes...
-                    </>
-                  ) : (
-                    "Save Changes"
+                <button
+                  type="submit"
+                  disabled={isUpdatingProfile || isUploadingImage}
+                  className="inline-flex h-10 items-center gap-2 rounded-[24px] bg-[#0540ad] px-6 text-[15px] font-medium text-white transition hover:bg-[#043591] disabled:opacity-50"
+                >
+                  {isUpdatingProfile && (
+                    <Loader2 aria-hidden="true" className="h-4 w-4 animate-spin" />
                   )}
-                </Button>
+                  <span>{isUpdatingProfile ? "Menyimpan..." : "Simpan Perubahan"}</span>
+                </button>
               </div>
             </form>
           )}
 
-          {/* Tab 2: Security */}
           {activeTab === "security" && (
             <form onSubmit={handleChangePassword} className="max-w-xl space-y-5">
               <div className="space-y-2">
-                <Label htmlFor="current-password">Current Password</Label>
+                <Label htmlFor="current-password" className="text-[#002253]">Kata Sandi Saat Ini</Label>
                 <Input
                   id="current-password"
                   type="password"
                   value={currentPassword}
                   onChange={(e) => setCurrentPassword(e.target.value)}
-                  placeholder="Enter current password"
+                  placeholder="Masukkan kata sandi saat ini"
                   required
                 />
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="new-password">New Password</Label>
+                <Label htmlFor="new-password" className="text-[#002253]">Kata Sandi Baru</Label>
                 <Input
                   id="new-password"
                   type="password"
                   value={newPassword}
                   onChange={(e) => setNewPassword(e.target.value)}
-                  placeholder="Enter new password (min. 6 characters)"
+                  placeholder="Minimal 6 karakter"
                   required
                 />
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="confirm-password">Confirm New Password</Label>
+                <Label htmlFor="confirm-password" className="text-[#002253]">Konfirmasi Kata Sandi Baru</Label>
                 <Input
                   id="confirm-password"
                   type="password"
                   value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}
-                  placeholder="Re-enter new password"
+                  placeholder="Ulangi kata sandi baru"
                   required
                 />
               </div>
 
               <div className="pt-2">
-                <Button type="submit" disabled={isChangingPassword}>
-                  {isChangingPassword ? (
-                    <>
-                      <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                      Updating Password...
-                    </>
-                  ) : (
-                    "Update Password"
+                <button
+                  type="submit"
+                  disabled={isChangingPassword}
+                  className="inline-flex h-10 items-center gap-2 rounded-[24px] bg-[#0540ad] px-6 text-[15px] font-medium text-white transition hover:bg-[#043591] disabled:opacity-50"
+                >
+                  {isChangingPassword && (
+                    <Loader2 aria-hidden="true" className="h-4 w-4 animate-spin" />
                   )}
-                </Button>
+                  <span>{isChangingPassword ? "Memperbarui..." : "Perbarui Kata Sandi"}</span>
+                </button>
               </div>
             </form>
           )}
 
-          {/* Tab 3: Account Overview */}
           {activeTab === "overview" && (
-            <div className="space-y-6 max-w-2xl">
-              <div className="rounded-xl border bg-slate-50/50 p-4 space-y-3">
-                <h3 className="text-sm font-semibold text-slate-900 flex items-center gap-2">
-                  <User className="h-4 w-4 text-indigo-600" />
-                  Account Identifiers
+            <div className="space-y-5 max-w-2xl">
+              <div className="rounded-[12px] border border-[#dfdfe0] bg-[#f8faff] p-5 space-y-3">
+                <h3 className="text-sm font-bold text-[#002253] flex items-center gap-2">
+                  <User aria-hidden="true" className="h-4 w-4 text-[#0540ad]" />
+                  <span>Identitas Akun</span>
                 </h3>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
                   <div>
-                    <span className="text-xs text-slate-500 block">User ID</span>
-                    <div className="flex items-center gap-2 mt-1">
-                      <code className="text-xs font-mono bg-white border px-2 py-1 rounded text-slate-800 truncate max-w-[200px]">
+                    <span className="text-xs font-medium text-[#66666b] block">ID Pengguna</span>
+                    <div className="flex items-center gap-2 mt-1.5">
+                      <code className="text-xs font-mono bg-white border border-[#dfdfe0] px-2.5 py-1 rounded-[12px] text-[#002253] truncate max-w-[200px]">
                         {user.id}
                       </code>
                       <button
+                        type="button"
                         onClick={() => copyToClipboard(user.id)}
-                        className="p-1 hover:bg-white rounded border text-slate-500 hover:text-slate-900 transition"
-                        title="Copy User ID"
+                        aria-label="Salin ID Pengguna"
+                        className="flex h-7 w-7 items-center justify-center rounded-full border border-[#dfdfe0] bg-white text-[#66666b] transition hover:bg-[#e8eefc] hover:text-[#002253]"
                       >
                         {copiedId ? (
-                          <Check className="h-3.5 w-3.5 text-emerald-600" />
+                          <Check aria-hidden="true" className="h-3.5 w-3.5 text-[#0540ad]" />
                         ) : (
-                          <Copy className="h-3.5 w-3.5" />
+                          <Copy aria-hidden="true" className="h-3.5 w-3.5" />
                         )}
                       </button>
                     </div>
                   </div>
 
                   <div>
-                    <span className="text-xs text-slate-500 block">Assigned Role</span>
-                    <div className="mt-1">
+                    <span className="text-xs font-medium text-[#66666b] block">Peran Terdaftar</span>
+                    <div className="mt-1.5">
                       <UserRoleBadge />
                     </div>
                   </div>
                 </div>
               </div>
 
-              <div className="rounded-xl border bg-slate-50/50 p-4 space-y-3">
-                <h3 className="text-sm font-semibold text-slate-900 flex items-center gap-2">
-                  <ShieldCheck className="h-4 w-4 text-indigo-600" />
-                  Role Capabilities & Permissions
+              <div className="rounded-[12px] border border-[#dfdfe0] bg-[#f8faff] p-5 space-y-3">
+                <h3 className="text-sm font-bold text-[#002253] flex items-center gap-2">
+                  <ShieldCheck aria-hidden="true" className="h-4 w-4 text-[#0540ad]" />
+                  <span>Kapabilitas Ruang Kerja</span>
                 </h3>
-                <ul className="space-y-2 text-sm text-slate-600">
-                  <li className="flex items-start gap-2">
-                    <Check className="h-4 w-4 text-emerald-500 mt-0.5 flex-shrink-0" />
-                    <span>Access Admin Dashboard & Analytics</span>
+                <ul className="space-y-2.5 text-sm font-medium text-[#38383c]">
+                  <li className="flex items-start gap-2.5">
+                    <Check aria-hidden="true" className="h-4 w-4 text-[#0540ad] mt-0.5 flex-shrink-0" />
+                    <span>Mengakses ringkasan operasional dan statistik konten dashboard</span>
                   </li>
-                  <li className="flex items-start gap-2">
-                    <Check className="h-4 w-4 text-emerald-500 mt-0.5 flex-shrink-0" />
-                    <span>Manage Projects Portfolio (Create, Read, Update, Delete)</span>
+                  <li className="flex items-start gap-2.5">
+                    <Check aria-hidden="true" className="h-4 w-4 text-[#0540ad] mt-0.5 flex-shrink-0" />
+                    <span>Mengelola portofolio proyek (buat, perbarui, dan sorot ke beranda)</span>
                   </li>
-                  <li className="flex items-start gap-2">
-                    <Check className="h-4 w-4 text-emerald-500 mt-0.5 flex-shrink-0" />
-                    <span>Manage Posts, Categories, Comments, and Tags</span>
+                  <li className="flex items-start gap-2.5">
+                    <Check aria-hidden="true" className="h-4 w-4 text-[#0540ad] mt-0.5 flex-shrink-0" />
+                    <span>Mengelola artikel blog, kategori, tag, serta moderasi komentar</span>
                   </li>
                 </ul>
               </div>
@@ -504,5 +543,13 @@ export default function ProfilePage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function ProfilePage() {
+  return (
+    <Suspense fallback={<ProfilePageSkeleton />}>
+      <ProfileContent />
+    </Suspense>
   );
 }

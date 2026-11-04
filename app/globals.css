@@ -10,6 +10,7 @@
 }
 
 :root {
+  color-scheme: light;
   --background: oklch(1 0 0);
   --foreground: oklch(0.129 0.042 264.695);
   --card: oklch(1 0 0);
@@ -46,6 +47,7 @@
 }
 
 .dark {
+  color-scheme: dark;
   --background: oklch(0.129 0.042 264.695);
   --foreground: oklch(0.984 0.003 247.858);
   --card: oklch(0.129 0.042 264.695);
@@ -247,4 +249,273 @@
 .ProseMirror [style*="text-align: justify"],
 .tiptap-content [style*="text-align: justify"] {
   text-align: justify !important;
+}
+
+/* Gamma Dashboard Design System Tokens & Responsive Utilities */
+@property --drawer-backdrop {
+  syntax: '<number>';
+  inherits: true;
+  initial-value: 0;
+}
+
+.gamma-dashboard {
+  --gamma-primary: #0540ad;
+  --gamma-primary-hover: #043591;
+  --gamma-ink: #002253;
+  --gamma-ink-body: #38383c;
+  --gamma-ink-muted: #66666b;
+  --gamma-ink-tile: #243f6b;
+  --gamma-canvas: #ffffff;
+  --gamma-surface-tile: #e8eefc;
+  --gamma-surface-snowcap: #d0e6fe;
+  --gamma-accent-sunrise: #2548eb;
+  --gamma-accent-rocketfire: #ff5000;
+  --gamma-accent-bordeaux: #da2887;
+  --gamma-hairline: #dfdfe0;
+
+  color: var(--gamma-ink-body);
+  background: linear-gradient(180deg, #f3f7ff 0%, #f8faff 260px, #ffffff 640px);
+}
+
+.gamma-dashboard ::selection {
+  background-color: #d0e6fe;
+  color: #002253;
+}
+
+.gamma-dashboard :focus-visible {
+  outline: 2px solid #0540ad;
+  outline-offset: 2px;
+}
+
+.gamma-tabular {
+  font-variant-numeric: tabular-nums;
+}
+
+.gamma-visually-hidden {
+  position: absolute;
+  clip-path: inset(50%);
+  overflow: hidden;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  border: 0;
+  white-space: nowrap;
+}
+
+.gamma-cloud-band {
+  background: linear-gradient(180deg, #fafcff 0%, #f1f6ff 52%, #f8fbff 100%);
+}
+
+/* Mobile Navigation Drawer (Top-Layer Manual Popover + Scroll Snap) */
+.gamma-drawer {
+  --drawer-width: min(20em, 82dvw);
+  --drawer-backdrop: 0;
+  inset: 0;
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  height: 100%;
+  max-width: none;
+  max-height: none;
+  background: transparent;
+  border: 0;
+  overflow: visible;
+}
+
+.gamma-drawer::backdrop {
+  background: #002253;
+  opacity: calc(var(--drawer-backdrop) * 0.42);
+}
+
+.gamma-drawer-scroller {
+  position: relative;
+  display: grid;
+  grid-template-columns: var(--drawer-width) 100%;
+  width: 100%;
+  height: 100%;
+  overflow-x: scroll;
+  overscroll-behavior: none;
+  scrollbar-width: none;
+  scroll-snap-type: x mandatory;
+}
+
+.gamma-drawer-scroller::-webkit-scrollbar {
+  display: none;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .gamma-drawer-scroller {
+    scroll-behavior: smooth;
+  }
+}
+
+.gamma-drawer-scroller::after {
+  content: '';
+  scroll-snap-align: end;
+  scroll-initial-target: nearest;
+}
+
+.gamma-drawer-sheet {
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  height: 100svh;
+  background: #ffffff;
+  color: #002253;
+  border-right: 1px solid #dfdfe0;
+  overflow-y: auto;
+  scroll-snap-align: start;
+  scrollbar-width: none;
+  box-shadow: 0 12px 32px rgba(0, 34, 83, 0.12);
+}
+
+.gamma-drawer-sheet::-webkit-scrollbar {
+  display: none;
+}
+
+@supports (animation-timeline: scroll()) {
+  .gamma-drawer {
+    timeline-scope: --drawer-fade;
+    animation: gamma-fade-drawer-backdrop linear both;
+    animation-timeline: --drawer-fade;
+  }
+
+  .gamma-drawer-scroller {
+    scroll-timeline: --drawer-fade x;
+  }
+
+  @keyframes gamma-fade-drawer-backdrop {
+    0% {
+      --drawer-backdrop: 1;
+    }
+    100% {
+      --drawer-backdrop: 0;
+    }
+  }
+}
+
+/* Container-Query Responsive Data Tables */
+.gamma-table-wrapper {
+  overflow: auto;
+  max-inline-size: 100%;
+  container-type: inline-size;
+}
+
+.gamma-table-responsive {
+  border-collapse: separate;
+  border-spacing: 0;
+  width: 100%;
+}
+
+.gamma-table-responsive thead {
+  position: sticky;
+  inset-block-start: 0;
+  z-index: 1;
+}
+
+.gamma-table-responsive tbody th {
+  position: sticky;
+  inset-inline-start: 0;
+  background: #ffffff;
+}
+
+.gamma-table-responsive tbody tr:hover th {
+  background: #f6f9ff;
+}
+
+@container (width < 640px) {
+  .gamma-table-responsive,
+  .gamma-table-responsive thead,
+  .gamma-table-responsive tbody,
+  .gamma-table-responsive tr,
+  .gamma-table-responsive th,
+  .gamma-table-responsive td {
+    display: block;
+  }
+
+  .gamma-table-responsive thead {
+    display: none;
+  }
+
+  .gamma-table-responsive tbody {
+    padding: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .gamma-table-responsive tbody tr {
+    border: 1px solid #dfdfe0;
+    border-radius: 12px;
+    background: #ffffff;
+    overflow: hidden;
+  }
+
+  .gamma-table-responsive tbody th,
+  .gamma-table-responsive tbody tr:hover th {
+    position: static;
+    background: #f5f8ff;
+    border-bottom: 1px solid #dfdfe0;
+    padding: 12px 16px;
+    text-align: left;
+  }
+
+  .gamma-table-responsive tbody td:not([data-empty-row]) {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 10px 16px;
+    border-top: 1px solid #eef2f8;
+    text-align: right;
+    white-space: normal;
+  }
+
+  .gamma-table-responsive tbody td:first-of-type:not([data-empty-row]) {
+    border-top: 0;
+  }
+
+  .gamma-table-responsive tbody td:nth-child(2):not([data-empty-row])::before {
+    content: var(--label-2) ": ";
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    color: #66666b;
+    text-align: left;
+    flex-shrink: 0;
+  }
+
+  .gamma-table-responsive tbody td:nth-child(3):not([data-empty-row])::before {
+    content: var(--label-3) ": ";
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    color: #66666b;
+    text-align: left;
+    flex-shrink: 0;
+  }
+
+  .gamma-table-responsive tbody td:nth-child(4):not([data-empty-row])::before {
+    content: var(--label-4) ": ";
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    color: #66666b;
+    text-align: left;
+    flex-shrink: 0;
+  }
+
+  .gamma-table-responsive tbody td:nth-child(5):not([data-empty-row])::before {
+    content: var(--label-5) ": ";
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    color: #66666b;
+    text-align: left;
+    flex-shrink: 0;
+  }
 }

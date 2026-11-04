@@ -131,157 +131,218 @@ export default function CategoriesPage() {
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center min-h-[400px]">
-        <Loader2 className="h-8 w-8 animate-spin text-slate-600" />
+      <div className="space-y-6">
+        <div className="rounded-[24px] border border-[#dfdfe0] bg-white p-6 sm:p-8 flex items-center justify-between">
+          <div className="space-y-2">
+            <div className="h-7 w-40 rounded-[12px] bg-[#e8eefc] animate-pulse" />
+            <div className="h-4 w-56 rounded-full bg-[#e8eefc]/70 animate-pulse" />
+          </div>
+          <div className="h-10 w-36 rounded-[24px] bg-[#e8eefc] animate-pulse" />
+        </div>
+        <div className="rounded-[24px] border border-[#dfdfe0] bg-white p-6 space-y-3">
+          {[1, 2, 3].map((item) => (
+            <div key={item} className="h-14 rounded-[12px] bg-[#e8eefc]/50 animate-pulse" />
+          ))}
+        </div>
       </div>
     );
   }
 
+  const tableLabelVars = {
+    "--label-2": '"Slug"',
+    "--label-3": '"Deskripsi"',
+    "--label-4": '"Tanggal"',
+    "--label-5": '"Aksi"',
+  } as React.CSSProperties;
+
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-wrap items-center justify-between gap-4 rounded-[24px] border border-[#dfdfe0] bg-white p-6 sm:p-8">
         <div>
-          <h1 className="text-3xl font-bold text-slate-900">Categories</h1>
-          <p className="text-slate-600 mt-1">
-            Manage your blog categories
+          <h1 className="text-[26px] sm:text-[30px] font-extrabold tracking-[-0.6px] leading-tight text-[#002253]">
+            Kategori Konten
+          </h1>
+          <p className="mt-1 text-sm sm:text-[15px] font-medium text-[#66666b] gamma-tabular">
+            Kelola pengelompokan topik artikel blog ({categories.length} kategori)
           </p>
         </div>
 
         <Dialog open={isDialogOpen} onOpenChange={handleDialogClose}>
           <DialogTrigger asChild>
-            <Button>
-              <Plus className="h-4 w-4 mr-2" />
-              Add Category
-            </Button>
+            <button
+              type="button"
+              className="inline-flex h-10 items-center gap-2 rounded-[24px] bg-[#0540ad] px-6 text-[15px] font-medium text-white transition hover:bg-[#043591]"
+            >
+              <Plus aria-hidden="true" className="h-4 w-4" />
+              <span>Tambah Kategori</span>
+            </button>
           </DialogTrigger>
-          <DialogContent>
+          <DialogContent className="rounded-[24px] border-[#dfdfe0]">
             <DialogHeader>
-              <DialogTitle>
-                {editingCategory ? "Edit Category" : "Add New Category"}
+              <DialogTitle className="text-[#002253]">
+                {editingCategory ? "Sunting Kategori" : "Tambah Kategori Baru"}
               </DialogTitle>
             </DialogHeader>
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="name">Name</Label>
+                <Label htmlFor="name" className="text-[#002253]">Nama Kategori</Label>
                 <Input
                   id="name"
                   value={formData.name}
                   onChange={(e) =>
                     setFormData({ ...formData, name: e.target.value })
                   }
-                  placeholder="Enter category name"
+                  placeholder="Contoh: Arsitektur Web"
                   required
                 />
-                <p className="text-xs text-slate-500">
-                  Slug will be automatically generated from the name
+                <p className="text-xs text-[#66666b]">
+                  Slug URL akan dibuat otomatis berdasarkan nama kategori.
                 </p>
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="description">Description</Label>
+                <Label htmlFor="description" className="text-[#002253]">Deskripsi</Label>
                 <Textarea
                   id="description"
                   value={formData.description}
                   onChange={(e) =>
                     setFormData({ ...formData, description: e.target.value })
                   }
-                  placeholder="Enter category description (optional)"
+                  placeholder="Ringkasan topik kategori (opsional)"
                   rows={3}
                 />
               </div>
 
-              <div className="flex justify-end gap-2">
-                <Button
+              <div className="flex justify-end gap-2 pt-2">
+                <button
                   type="button"
-                  variant="outline"
                   onClick={() => handleDialogClose(false)}
                   disabled={isSubmitting}
+                  className="inline-flex h-10 items-center rounded-[24px] border border-[#dfdfe0] bg-white px-5 text-sm font-medium text-[#002253] transition hover:bg-[#e8eefc]/60 disabled:opacity-50"
                 >
-                  Cancel
-                </Button>
-                <Button type="submit" disabled={isSubmitting}>
+                  Batal
+                </button>
+                <button
+                  type="submit"
+                  disabled={isSubmitting}
+                  className="inline-flex h-10 items-center gap-2 rounded-[24px] bg-[#0540ad] px-6 text-sm font-medium text-white transition hover:bg-[#043591] disabled:opacity-50"
+                >
                   {isSubmitting && (
-                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                    <Loader2 aria-hidden="true" className="h-4 w-4 animate-spin" />
                   )}
-                  {editingCategory ? "Update" : "Create"}
-                </Button>
+                  <span>{editingCategory ? "Perbarui" : "Simpan"}</span>
+                </button>
               </div>
             </form>
           </DialogContent>
         </Dialog>
       </div>
 
-      <div className="bg-white rounded-lg shadow">
-        <div className="overflow-x-auto">
-          <table className="min-w-full divide-y divide-slate-200">
-            <thead className="bg-slate-50">
+      <div className="overflow-hidden rounded-[24px] border border-[#dfdfe0] bg-white">
+        <div
+          tabIndex={0}
+          role="region"
+          aria-labelledby="categories-table-caption"
+          className="gamma-table-wrapper"
+        >
+          <table className="gamma-table-responsive" style={tableLabelVars}>
+            <caption id="categories-table-caption" className="sr-only">
+              Daftar kategori blog beserta slug, deskripsi, dan tanggal pembuatan
+            </caption>
+            <thead className="bg-[#f6f9ff]">
               <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">
-                  Name
+                <th
+                  scope="col"
+                  className="border-b border-[#dfdfe0] px-6 py-3.5 text-left text-[12px] font-bold uppercase tracking-[0.5px] text-[#002253]"
+                >
+                  Nama
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">
+                <th
+                  scope="col"
+                  className="border-b border-[#dfdfe0] px-6 py-3.5 text-left text-[12px] font-bold uppercase tracking-[0.5px] text-[#002253]"
+                >
                   Slug
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">
-                  Description
+                <th
+                  scope="col"
+                  className="border-b border-[#dfdfe0] px-6 py-3.5 text-left text-[12px] font-bold uppercase tracking-[0.5px] text-[#002253]"
+                >
+                  Deskripsi
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">
-                  Created At
+                <th
+                  scope="col"
+                  className="border-b border-[#dfdfe0] px-6 py-3.5 text-left text-[12px] font-bold uppercase tracking-[0.5px] text-[#002253]"
+                >
+                  Tanggal
                 </th>
-                <th className="px-6 py-3 text-right text-xs font-medium text-slate-500 uppercase tracking-wider">
-                  Actions
+                <th
+                  scope="col"
+                  className="border-b border-[#dfdfe0] px-6 py-3.5 text-right text-[12px] font-bold uppercase tracking-[0.5px] text-[#002253]"
+                >
+                  Aksi
                 </th>
               </tr>
             </thead>
-            <tbody className="bg-white divide-y divide-slate-200">
+            <tbody className="bg-white">
               {categories.length === 0 ? (
                 <tr>
                   <td
                     colSpan={5}
-                    className="px-6 py-8 text-center text-slate-500"
+                    data-empty-row=""
+                    className="px-6 py-12 text-center text-sm font-medium text-[#66666b]"
                   >
-                    No categories yet. Create your first category to get started.
+                    Belum ada kategori terdaftar. Tambahkan kategori pertama untuk artikel blog.
                   </td>
                 </tr>
               ) : (
                 categories.map((category) => (
-                  <tr key={category.id} className="hover:bg-slate-50">
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm font-medium text-slate-900">
+                  <tr key={category.id} className="hover:bg-[#f6f9ff] transition-colors">
+                    <th
+                      scope="row"
+                      className="border-b border-[#eef2f8] px-6 py-4 text-left whitespace-nowrap font-normal"
+                    >
+                      <span className="text-[15px] font-bold text-[#002253]">
                         {category.name}
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm text-slate-600 font-mono bg-slate-100 px-2 py-1 rounded">
+                      </span>
+                    </th>
+                    <td className="border-b border-[#eef2f8] px-6 py-4 whitespace-nowrap">
+                      <span className="inline-block rounded-full bg-[#e8eefc] px-3 py-1 font-mono text-xs font-medium text-[#002253]">
                         {category.slug}
-                      </div>
+                      </span>
                     </td>
-                    <td className="px-6 py-4">
-                      <div className="text-sm text-slate-600 max-w-md truncate">
+                    <td className="border-b border-[#eef2f8] px-6 py-4">
+                      <span className="block max-w-md truncate text-sm font-medium text-[#38383c]">
                         {category.description || "-"}
-                      </div>
+                      </span>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm text-slate-600">
-                        {new Date(category.createdAt).toLocaleDateString()}
-                      </div>
+                    <td className="border-b border-[#eef2f8] px-6 py-4 whitespace-nowrap">
+                      <span className="text-sm font-medium text-[#66666b] gamma-tabular">
+                        {new Date(category.createdAt).toLocaleDateString("id-ID", {
+                          day: "numeric",
+                          month: "short",
+                          year: "numeric",
+                        })}
+                      </span>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                      <div className="flex items-center justify-end gap-2">
+                    <td className="border-b border-[#eef2f8] px-6 py-4 whitespace-nowrap text-right">
+                      <div className="inline-flex items-center justify-end gap-1.5">
                         <Button
                           variant="ghost"
                           size="sm"
+                          aria-label={`Sunting kategori ${category.name}`}
+                          className="h-8 w-8 rounded-full p-0 text-[#002253] hover:bg-[#e8eefc]"
                           onClick={() => handleEdit(category)}
                         >
-                          <Pencil className="h-4 w-4" />
+                          <Pencil aria-hidden="true" className="h-4 w-4" />
                         </Button>
                         <Button
                           variant="ghost"
                           size="sm"
+                          aria-label={`Hapus kategori ${category.name}`}
                           onClick={() => handleDelete(category.id)}
-                          className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                          className="h-8 w-8 rounded-full p-0 text-[#b53800] hover:bg-[#fff1ea] hover:text-[#b53800]"
                         >
-                          <Trash2 className="h-4 w-4" />
+                          <Trash2 aria-hidden="true" className="h-4 w-4" />
                         </Button>
                       </div>
                     </td>

@@ -2,93 +2,128 @@
 
 import { useEffect } from 'react';
 import { authClient } from '@/lib/auth-client';
-import { useAuthStore } from '@/lib/stores/auth-store';
+import { useAuthStore, normalizeRole } from '@/lib/stores/auth-store';
 import type { User } from '@/lib/stores/auth-store';
+
+let inflightAuthSync: Promise<void> | null = null;
+const FRESH_SYNC_TTL_MS = 5_000;
 
 /**
  * Hook to sync Better Auth session with Zustand store
  */
 export function useAuthSync() {
-  const { setUser, setSession, setLoading } = useAuthStore();
+  const setAuth = useAuthStore((state) => state.setAuth);
+  const setLoading = useAuthStore((state) => state.setLoading);
 
   useEffect(() => {
-    const syncAuth = async () => {
-      setLoading(true);
-      try {
-        const response = await authClient.getSession();
-        
-        // Type assertion for Better Auth response
-        const sessionData = response as unknown as {
-          data?: {
-            user?: {
-              id: string;
-              name: string;
-              email: string;
-              emailVerified: boolean;
-              image?: string | null;
-              role?: string;
-              createdAt: Date;
-              updatedAt: Date;
-            };
-            session?: {
-              id: string;
-              expiresAt: Date;
-              token: string;
-              userId: string;
-            };
-          } | null;
-        };
-        
-        if (sessionData.data?.user && sessionData.data?.session) {
-          const user: User = {
-            id: sessionData.data.user.id,
-            name: sessionData.data.user.name,
-            email: sessionData.data.user.email,
-            emailVerified: sessionData.data.user.emailVerified,
-            image: sessionData.data.user.image || undefined,
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            role: (sessionData.data.user.role as any) || 'user',
-            createdAt: new Date(sessionData.data.user.createdAt),
-            updatedAt: new Date(sessionData.data.user.updatedAt),
-          };
-          
-          setUser(user);
-          setSession({
-            id: sessionData.data.session.id,
-            expiresAt: new Date(sessionData.data.session.expiresAt),
-            token: sessionData.data.session.token,
-            userId: sessionData.data.session.userId,
-          });
-        } else {
-          setUser(null);
-          setSession(null);
+    const syncAuth = async (force = false) => {
+      const currentState = useAuthStore.getState();
+
+      // Skip redundant network roundtrip if sign-in/sign-up just hydrated the store
+      if (
+        !force &&
+        currentState.lastSyncedAt &&
+        Date.now() - currentState.lastSyncedAt < FRESH_SYNC_TTL_MS
+      ) {
+        if (currentState.isLoading) {
+          setLoading(false);
         }
-      } catch (error) {
-        console.error('Failed to sync auth:', error);
-        setUser(null);
-        setSession(null);
-      } finally {
-        setLoading(false);
+        return;
       }
+
+      if (inflightAuthSync) {
+        return inflightAuthSync;
+      }
+
+      // Only block UI with loading spinner when no user is hydrated yet
+      if (!currentState.user) {
+        setLoading(true);
+      }
+
+      inflightAuthSync = (async () => {
+        try {
+          const response = await authClient.getSession(
+            force ? { query: { disableCookieCache: true } } : undefined
+          );
+
+          // Type assertion for Better Auth response
+          const sessionData = response as unknown as {
+            data?: {
+              user?: {
+                id: string;
+                name: string;
+                email: string;
+                emailVerified: boolean;
+                image?: string | null;
+                role?: string;
+                createdAt: Date | string;
+                updatedAt: Date | string;
+              };
+              session?: {
+                id: string;
+                expiresAt: Date | string;
+                token: string;
+                userId: string;
+              };
+            } | null;
+            error?: unknown;
+          };
+
+          if (sessionData.data?.user && sessionData.data?.session) {
+            const user: User = {
+              id: sessionData.data.user.id,
+              name: sessionData.data.user.name,
+              email: sessionData.data.user.email,
+              emailVerified: sessionData.data.user.emailVerified,
+              image: sessionData.data.user.image || undefined,
+              role: normalizeRole(sessionData.data.user.role),
+              createdAt: new Date(sessionData.data.user.createdAt),
+              updatedAt: new Date(sessionData.data.user.updatedAt),
+            };
+
+            setAuth(user, {
+              id: sessionData.data.session.id,
+              expiresAt: new Date(sessionData.data.session.expiresAt),
+              token: sessionData.data.session.token,
+              userId: sessionData.data.session.userId,
+            });
+          } else if (!sessionData.error) {
+            setAuth(null, null);
+          } else {
+            setLoading(false);
+          }
+        } catch (error) {
+          console.error('Failed to sync auth:', error);
+          if (!useAuthStore.getState().user) {
+            setAuth(null, null);
+          } else {
+            setLoading(false);
+          }
+        } finally {
+          inflightAuthSync = null;
+        }
+      })();
+
+      return inflightAuthSync;
     };
 
     // Initial sync
-    syncAuth();
+    void syncAuth(false);
 
     // Listen for storage changes (cross-tab sync)
     const handleStorageChange = (e: StorageEvent) => {
       if (e.key === 'auth-storage') {
-        syncAuth();
+        void syncAuth(true);
       }
     };
 
     // Listen for custom auth events
     const handleAuthChange = () => {
-      syncAuth();
+      void syncAuth(false);
     };
 
     const handleAuthSync = () => {
-      syncAuth();
+      void syncAuth(true);
     };
 
     window.addEventListener('storage', handleStorageChange);
@@ -104,7 +139,7 @@ export function useAuthSync() {
       window.removeEventListener('auth-sync', handleAuthSync);
       // clearInterval(intervalId);
     };
-  }, [setUser, setSession, setLoading]);
+  }, [setAuth, setLoading]);
 }
 
 /**

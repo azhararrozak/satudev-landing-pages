@@ -25,10 +25,12 @@ interface AuthState {
   session: Session | null;
   isLoading: boolean;
   isAuthenticated: boolean;
+  lastSyncedAt: number | null;
   
   // Actions
   setUser: (user: User | null) => void;
   setSession: (session: Session | null) => void;
+  setAuth: (user: User | null, session: Session | null) => void;
   setLoading: (loading: boolean) => void;
   logout: () => void;
   updateUser: (userData: Partial<User>) => void;
@@ -40,6 +42,14 @@ interface AuthState {
   hasAnyRole: (roles: UserRole[]) => boolean;
 }
 
+export function normalizeRole(role?: string | null): UserRole {
+  const cleaned = String(role || 'user').trim().toLowerCase();
+  if (cleaned === 'admin' || cleaned === 'penulis') {
+    return cleaned;
+  }
+  return 'user';
+}
+
 export const useAuthStore = create<AuthState>()(
   persist(
     (set, get) => ({
@@ -47,16 +57,26 @@ export const useAuthStore = create<AuthState>()(
       session: null,
       isLoading: true, // Start with true to prevent premature redirects
       isAuthenticated: false,
+      lastSyncedAt: null,
 
       setUser: (user) =>
         set({
-          user,
+          user: user ? { ...user, role: normalizeRole(user.role) } : null,
           isAuthenticated: !!user,
         }),
 
       setSession: (session) =>
         set({
           session,
+        }),
+
+      setAuth: (user, session) =>
+        set({
+          user: user ? { ...user, role: normalizeRole(user.role) } : null,
+          session,
+          isAuthenticated: !!user,
+          isLoading: false,
+          lastSyncedAt: Date.now(),
         }),
 
       setLoading: (loading) =>
@@ -69,23 +89,34 @@ export const useAuthStore = create<AuthState>()(
           user: null,
           session: null,
           isAuthenticated: false,
+          isLoading: false,
+          lastSyncedAt: Date.now(),
         }),
 
       updateUser: (userData) =>
         set((state) => ({
-          user: state.user ? { ...state.user, ...userData } : null,
+          user: state.user
+            ? {
+                ...state.user,
+                ...userData,
+                role: userData.role
+                  ? normalizeRole(userData.role)
+                  : state.user.role,
+              }
+            : null,
         })),
 
       // Role-based checks
-      isAdmin: () => get().user?.role === 'admin',
+      isAdmin: () => normalizeRole(get().user?.role) === 'admin',
       
-      isPenulis: () => get().user?.role === 'penulis',
+      isPenulis: () => normalizeRole(get().user?.role) === 'penulis',
       
-      hasRole: (role) => get().user?.role === role,
+      hasRole: (role) => normalizeRole(get().user?.role) === role,
       
       hasAnyRole: (roles) => {
-        const userRole = get().user?.role;
-        return userRole ? roles.includes(userRole) : false;
+        const currentUser = get().user;
+        if (!currentUser) return false;
+        return roles.includes(normalizeRole(currentUser.role));
       },
     }),
     {

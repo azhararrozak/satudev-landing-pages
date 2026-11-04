@@ -83,9 +83,12 @@ export function getRoleDisplayName(role: UserRole): string {
  */
 export function getRoleBadgeColor(role: UserRole): string {
   const colors: Record<UserRole, string> = {
-    admin: 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200',
-    penulis: 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200',
-    user: 'bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200',
+    admin:
+      'bg-[#d0e6fe] text-[#002253] border border-[#b8d8fc] dark:bg-sky-950 dark:text-sky-200 dark:border-sky-800',
+    penulis:
+      'bg-[#e8eefc] text-[#002253] border border-[#d4e0fa] dark:bg-blue-950 dark:text-blue-200 dark:border-blue-800',
+    user:
+      'bg-[#f4f5f7] text-[#38383c] border border-[#dfdfe0] dark:bg-slate-800 dark:text-slate-200 dark:border-slate-700',
   };
   return colors[role];
 }

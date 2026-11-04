@@ -16,7 +16,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://www.satudev.id"),
+  metadataBase: new URL("https://www.satudev.web.id"),
   title: {
     default: "Satudev — Jasa Pembuatan Website & Mobile App Profesional",
     template: "%s | Satudev"
@@ -36,18 +36,18 @@ export const metadata: Metadata = {
     "pembuatan sistem custom"
   ],
   alternates: {
-    canonical: "https://www.satudev.id"
+    canonical: "https://www.satudev.web.id"
   },
   openGraph: {
     type: "website",
-    url: "https://www.satudev.id",
+    url: "https://www.satudev.web.id",
     title: "Satudev — Jasa Pembuatan Website & Mobile App Profesional",
     description:
       "Layanan pembuatan website & mobile app untuk bisnis, sekolah, dan UMKM. Cepat, aman, modern, dan dapat disesuaikan dengan kebutuhan Anda.",
     siteName: "Satudev",
     images: [
       {
-        url: "https://www.satudev.id/SatuDev.png",
+        url: "https://www.satudev.web.id/SatuDev.png",
         width: 1200,
         height: 630,
         alt: "Satudev — Layanan Pembuatan Website & Aplikasi"
@@ -59,7 +59,7 @@ export const metadata: Metadata = {
     title: "Satudev — Jasa Pembuatan Website & Mobile App Profesional",
     description:
       "Pembuatan website dan mobile app yang cepat, aman, dan terjangkau. Cocok untuk UMKM, sekolah, dan bisnis.",
-    images: ["https://www.satudev.id/SatuDev.png"]
+    images: ["https://www.satudev.web.id/SatuDev.png"]
   },
   robots: {
     index: true,
@@ -77,8 +77,8 @@ export default function RootLayout({
     "@context": "https://schema.org",
     "@type": "Organization",
     name: "Satudev",
-    url: "https://www.satudev.id",
-    logo: "https://www.satudev.id/SatuDev.png",
+    url: "https://www.satudev.web.id",
+    logo: "https://www.satudev.web.id/SatuDev.png",
     description:
       "Satudev menyediakan jasa pembuatan website, mobile app, dan sistem custom dengan harga terjangkau dan kualitas profesional.",
     sameAs: [
@@ -92,12 +92,6 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        {/* Puter.js SDK for AI features */}
-        <Script
-          src="https://js.puter.com/v2/"
-          strategy="beforeInteractive"
-          id="puter-sdk"
-        />
         <Script
           type="application/ld+json"
           id="satudev-org"

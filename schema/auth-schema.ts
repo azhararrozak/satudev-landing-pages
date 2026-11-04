@@ -4,6 +4,7 @@ import {
     timestamp,
     boolean,
 } from "drizzle-orm/pg-core";
+import { relations } from "drizzle-orm";
 
 // Define role enum type
 export type UserRole = "admin" | "user" | "penulis";
@@ -49,3 +50,22 @@ export const accounts = pgTable("accounts", {
     createdAt: timestamp("created_at").notNull(),
     updatedAt: timestamp("updated_at").notNull(),
 });
+
+export const usersRelations = relations(users, ({ many }) => ({
+    sessions: many(sessions),
+    accounts: many(accounts),
+}));
+
+export const sessionsRelations = relations(sessions, ({ one }) => ({
+    users: one(users, {
+        fields: [sessions.userId],
+        references: [users.id],
+    }),
+}));
+
+export const accountsRelations = relations(accounts, ({ one }) => ({
+    users: one(users, {
+        fields: [accounts.userId],
+        references: [users.id],
+    }),
+}));
