@@ -14,7 +14,8 @@ import {
 import { Textarea } from "@/components/ui/textarea";
 import { Upload, Sparkles, Loader2, X } from "lucide-react";
 import { toast } from "sonner";
-import { geminiAI } from "@/lib/ai/gemini-client";
+import { sumoPodAI } from "@/lib/ai/gemini-client";
+import { cropBlobToAspectRatio } from "@/lib/ai/image-crop";
 import Image from "next/image";
 
 interface FeaturedImageUploadProps {
@@ -26,6 +27,8 @@ export function FeaturedImageUpload({ value, onChange }: FeaturedImageUploadProp
   const [isUploading, setIsUploading] = useState(false);
   const [isGenerating, setIsGenerating] = useState(false);
   const [isAIDialogOpen, setIsAIDialogOpen] = useState(false);
+  const [isTextless, setIsTextless] = useState(true);
+  const [selectedRatio, setSelectedRatio] = useState<"16:9" | "1:1">("16:9");
   const [imagePrompt, setImagePrompt] = useState("");
   const [previewImage, setPreviewImage] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -90,20 +93,24 @@ export function FeaturedImageUpload({ value, onChange }: FeaturedImageUploadProp
     try {
       console.log('Starting AI image generation with prompt:', imagePrompt);
       
-      // Generate image with Gemini AI
-      const imageBlob = await geminiAI.generateImage(imagePrompt, {
-        provider: 'openai-image-generation',
-        model: 'gpt-image-1-mini',
-        quality: 'low',
-        ratio: { w: 1024, h: 1024 }
+      // Generate image with Cloudflare Workers AI (FLUX.1 [schnell])
+      const rawImageBlob = await sumoPodAI.generateImage(imagePrompt, {
+        steps: 4,
+        noText: isTextless,
       });
 
-      console.log('Image generated, blob size:', imageBlob.size, 'type:', imageBlob.type);
+      console.log('Image generated, blob size:', rawImageBlob.size, 'type:', rawImageBlob.type);
 
       // Verify blob is valid
-      if (!imageBlob || imageBlob.size === 0) {
+      if (!rawImageBlob || rawImageBlob.size === 0) {
         throw new Error('Generated image is empty or invalid');
       }
+
+      // Crop to 16:9 banner ratio if selected
+      const imageBlob =
+        selectedRatio === "16:9"
+          ? await cropBlobToAspectRatio(rawImageBlob, { w: 16, h: 9 }, 1280)
+          : rawImageBlob;
 
       // Create preview
       const previewUrl = URL.createObjectURL(imageBlob);
@@ -111,12 +118,13 @@ export function FeaturedImageUpload({ value, onChange }: FeaturedImageUploadProp
 
       // Upload to server
       const formData = new FormData();
-      const fileName = `ai-generated-${Date.now()}.png`;
+      const ext = imageBlob.type === 'image/png' ? 'png' : 'jpg';
+      const fileName = `flux-${Date.now()}.${ext}`;
       
       console.log('Creating File from Blob with filename:', fileName);
       
       // Create a File from Blob with proper filename
-      const file = new File([imageBlob], fileName, { type: 'image/png' });
+      const file = new File([imageBlob], fileName, { type: imageBlob.type || 'image/jpeg' });
       
       console.log('File created:', {
         name: file.name,
@@ -210,9 +218,14 @@ export function FeaturedImageUpload({ value, onChange }: FeaturedImageUploadProp
             </DialogTrigger>
             <DialogContent className="max-w-lg">
               <DialogHeader>
-                <DialogTitle className="flex items-center gap-2">
-                  <Sparkles className="h-5 w-5 text-purple-500" />
-                  Generate Image with AI
+                <DialogTitle className="flex items-center justify-between gap-2">
+                  <span className="flex items-center gap-2">
+                    <Sparkles className="h-5 w-5 text-purple-500" />
+                    <span>Generate Gambar AI</span>
+                  </span>
+                  <span className="rounded-full border border-orange-200 bg-orange-50 dark:bg-orange-950/40 dark:border-orange-800 px-2.5 py-0.5 text-[11px] font-bold text-orange-600 dark:text-orange-400">
+                    FLUX.1 Schnell
+                  </span>
                 </DialogTitle>
               </DialogHeader>
 
@@ -230,6 +243,40 @@ export function FeaturedImageUpload({ value, onChange }: FeaturedImageUploadProp
                   <p className="text-xs text-slate-500">
                     Be specific for better results. Include style, mood, colors, and details.
                   </p>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/60 p-3">
+                    <Label className="text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5 block">
+                      Rasio Aspek
+                    </Label>
+                    <select
+                      value={selectedRatio}
+                      onChange={(e) =>
+                        setSelectedRatio(e.target.value as "16:9" | "1:1")
+                      }
+                      className="w-full h-8 text-xs rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 px-2 font-medium"
+                    >
+                      <option value="16:9">16:9 (Banner Blog)</option>
+                      <option value="1:1">1:1 (Persegi / Square)</option>
+                    </select>
+                  </div>
+
+                  <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/60 p-3 flex items-center">
+                    <label
+                      htmlFor="textless-toggle"
+                      className="flex items-center gap-2.5 text-xs font-medium text-slate-700 dark:text-slate-300 cursor-pointer select-none"
+                    >
+                      <input
+                        type="checkbox"
+                        id="textless-toggle"
+                        checked={isTextless}
+                        onChange={(e) => setIsTextless(e.target.checked)}
+                        className="h-4 w-4 rounded accent-[#0540ad]"
+                      />
+                      <span>Tanpa teks (Pure Image)</span>
+                    </label>
+                  </div>
                 </div>
 
                 {previewImage && (

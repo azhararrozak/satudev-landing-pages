@@ -1,65 +1,96 @@
 import { NextResponse } from "next/server";
 import { headers } from "next/headers";
 import { auth } from "@/lib/backend/auth";
-import { GoogleGenAI } from "@google/genai";
+import type OpenAI from "openai";
+import {
+  buildChatMessages,
+  getReasoningParams,
+  stripCodeFences,
+  getSumoPodClient,
+  resolveSumoPodModel,
+  SumoPodConfigError,
+} from "@/lib/ai/sumopod";
 
 export async function POST(request: Request) {
   try {
-    // 1. Verify user session for security
+    // 1. Verify user session
     const session = await auth.api.getSession({
       headers: await headers(),
     });
 
     if (!session?.user) {
-      return NextResponse.json(
-        { error: "Unauthorized" },
-        { status: 401 }
-      );
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
     // 2. Parse request body
     const body = await request.json();
-    const { prompt, options = {} } = body;
+    const { prompt, options = {} } = body as {
+      prompt?: string;
+      options?: {
+        model?: string;
+        systemPrompt?: string;
+        max_tokens?: number;
+        temperature?: number;
+      };
+    };
 
-    if (!prompt) {
+    if (!prompt || !prompt.trim()) {
       return NextResponse.json(
         { error: "Prompt is required" },
         { status: 400 }
       );
     }
 
-    // 3. Initialize GoogleGenAI client
-    if (!process.env.GEMINI_API_KEY) {
-      console.error("GEMINI_API_KEY is not defined in environment variables");
+    // 3. Initialize SumoPod OpenAI-compatible client & resolve GLM Flash model
+    const openai = getSumoPodClient();
+    const model = await resolveSumoPodModel(openai, options.model);
+    const messages = buildChatMessages(prompt, options.systemPrompt);
+
+    // 4. Request chat completion from SumoPod AI
+    const response = await openai.chat.completions.create({
+      model,
+      messages,
+      max_tokens: options.max_tokens ?? 4096,
+      temperature: options.temperature ?? 0.7,
+      ...getReasoningParams(),
+    } as OpenAI.Chat.Completions.ChatCompletionCreateParamsNonStreaming);
+
+    const choice = response.choices[0];
+    const text = stripCodeFences(choice?.message?.content ?? "");
+
+    if (!text) {
+      console.error("SumoPod AI returned empty content", {
+        model: response.model || model,
+        finishReason: choice?.finish_reason,
+        usage: response.usage,
+      });
       return NextResponse.json(
-        { error: "AI Service configuration error" },
-        { status: 500 }
+        {
+          error:
+            choice?.finish_reason === "length"
+              ? "AI kehabisan batas token sebelum menulis jawaban. Coba pilih panjang artikel yang lebih pendek."
+              : "AI tidak mengembalikan konten. Silakan coba lagi.",
+        },
+        { status: 502 }
       );
     }
 
-    const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
-    
-    // Map model from request options or default to gemini-3.5-flash
-    let model = options.model || "gemini-3.5-flash";
-    // Map puter models to gemini models if needed
-    if (model.includes("gpt-5-nano") || model.includes("gpt-") || model.includes("gemini-2.0-flash")) {
-      model = "gemini-3.5-flash";
-    }
-
-    // 4. Generate content
-    const response = await ai.models.generateContent({
-      model,
-      contents: prompt,
-      config: options.max_tokens ? { maxOutputTokens: options.max_tokens } : undefined,
-    });
-
     return NextResponse.json({
-      text: response.text,
+      text,
+      model: response.model || model,
     });
   } catch (error) {
-    console.error("Error in AI Chat API Route:", error);
+    console.error("Error in SumoPod AI Chat API Route:", error);
+
+    if (error instanceof SumoPodConfigError) {
+      return NextResponse.json({ error: error.message }, { status: 503 });
+    }
+
     return NextResponse.json(
-      { error: error instanceof Error ? error.message : "Internal Server Error" },
+      {
+        error:
+          error instanceof Error ? error.message : "Internal Server Error",
+      },
       { status: 500 }
     );
   }

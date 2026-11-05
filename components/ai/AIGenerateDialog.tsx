@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, type ReactNode } from "react";
+import { useState, type KeyboardEvent, type ReactNode } from "react";
 import {
   Dialog,
   DialogContent,
@@ -12,15 +12,18 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Sparkles, Loader2, RefreshCw } from "lucide-react";
+import { Sparkles, Loader2, RefreshCw, X } from "lucide-react";
 import { toast } from "sonner";
 import {
+  DEFAULT_BLOG_AI_MODEL,
   generateBlogArticle,
   generateBlogArticleStream,
   generateTitleSuggestions,
+  parseGeneratedArticle,
   type GenerationOptions,
 } from "@/lib/ai/blog-generator";
-import { geminiAI } from "@/lib/ai/gemini-client";
+import { sumoPodAI } from "@/lib/ai/gemini-client";
+import { cropBlobToAspectRatio } from "@/lib/ai/image-crop";
 
 interface AIGenerateDialogProps {
   children?: ReactNode;
@@ -32,12 +35,16 @@ interface AIGenerateDialogProps {
   }) => void;
 }
 
-export function AIGenerateDialog({ children, onGenerated }: AIGenerateDialogProps) {
+export function AIGenerateDialog({
+  children,
+  onGenerated,
+}: AIGenerateDialogProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [isGenerating, setIsGenerating] = useState(false);
   const [isGeneratingTitles, setIsGeneratingTitles] = useState(false);
   const [streamedContent, setStreamedContent] = useState("");
-  const [useStreaming, setUseStreaming] = useState(false);
+  const [useStreaming, setUseStreaming] = useState(true);
+  const [autoGenerateImage, setAutoGenerateImage] = useState(false);
   const [titleSuggestions, setTitleSuggestions] = useState<string[]>([]);
 
   const [options, setOptions] = useState<GenerationOptions>({
@@ -47,18 +54,32 @@ export function AIGenerateDialog({ children, onGenerated }: AIGenerateDialogProp
     keywords: [],
     targetAudience: "developers",
     language: "id",
-    model: "gemini-3.5-flash",
+    model: DEFAULT_BLOG_AI_MODEL,
   });
 
   const [keywordInput, setKeywordInput] = useState("");
 
   const handleAddKeyword = () => {
-    if (keywordInput.trim() && options.keywords) {
-      setOptions({
-        ...options,
-        keywords: [...options.keywords, keywordInput.trim()],
-      });
+    const cleaned = keywordInput.trim();
+    if (cleaned && options.keywords) {
+      if (!options.keywords.includes(cleaned)) {
+        setOptions({
+          ...options,
+          keywords: [...options.keywords, cleaned],
+        });
+      }
       setKeywordInput("");
+    }
+  };
+
+  const handleKeywordKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      // Prevent premature keyword insertion while IME composition is active
+      if (e.nativeEvent.isComposing || e.nativeEvent.keyCode === 229) {
+        return;
+      }
+      handleAddKeyword();
     }
   };
 
@@ -72,7 +93,7 @@ export function AIGenerateDialog({ children, onGenerated }: AIGenerateDialogProp
   };
 
   const handleGenerateTitles = async () => {
-    if (!options.topic) {
+    if (!options.topic?.trim()) {
       toast.error("Masukkan topik terlebih dahulu");
       return;
     }
@@ -80,23 +101,29 @@ export function AIGenerateDialog({ children, onGenerated }: AIGenerateDialogProp
     setIsGeneratingTitles(true);
     try {
       const titles = await generateTitleSuggestions(
-        options.topic,
+        options.topic.trim(),
         options.language,
         options.model
       );
       setTitleSuggestions(titles);
-      toast.success(`${titles.length} judul berhasil di-generate`);
+      if (titles.length > 0) {
+        toast.success(`${titles.length} saran judul berhasil dibuat`);
+      } else {
+        toast.info("Belum ada saran judul yang cocok, silakan coba topik lain");
+      }
     } catch (error) {
       console.error(error);
-      toast.error("Gagal generate judul");
+      toast.error(
+        error instanceof Error ? error.message : "Gagal membuat saran judul"
+      );
     } finally {
       setIsGeneratingTitles(false);
     }
   };
 
   const handleGenerate = async () => {
-    if (!options.topic) {
-      toast.error("Topik artikel harus diisi");
+    if (!options.topic?.trim()) {
+      toast.error("Topik artikel wajib diisi");
       return;
     }
 
@@ -109,72 +136,92 @@ export function AIGenerateDialog({ children, onGenerated }: AIGenerateDialogProp
       let finalExcerpt = "";
 
       if (useStreaming) {
-        // Generate with streaming
         let fullContent = "";
         for await (const chunk of generateBlogArticleStream(options)) {
           fullContent += chunk;
           setStreamedContent(fullContent);
         }
 
-        finalTitle = options.topic;
-        finalContent = fullContent;
-        finalExcerpt = fullContent.substring(0, 160);
+        const parsed = parseGeneratedArticle(fullContent, options.topic.trim());
+        finalTitle = parsed.title;
+        finalContent = parsed.content;
+        finalExcerpt = parsed.excerpt;
       } else {
-        // Generate without streaming
         const result = await generateBlogArticle(options);
         finalTitle = result.title;
         finalContent = result.content;
         finalExcerpt = result.excerpt;
       }
 
-      // Auto-generate featured image based on the generated title
+      if (!finalContent.replace(/<[^>]+>/g, "").trim()) {
+        throw new Error(
+          "AI tidak menghasilkan isi artikel. Silakan coba lagi atau pilih panjang artikel yang lebih pendek."
+        );
+      }
+
       let featuredImageUrl = "";
-      try {
-        toast.info("Sedang menggenerasi gambar unggulan...");
-        const imagePrompt = `Blog post featured image, professional digital illustration for article titled: "${finalTitle}", modern, flat design style, clean background`;
-        
-        const imageBlob = await geminiAI.generateImage(imagePrompt, {
-          ratio: { w: 1024, h: 1024 }
-        });
+      if (autoGenerateImage) {
+        try {
+          toast.info("Sedang membuat gambar unggulan dengan Cloudflare Workers AI (FLUX.1 Schnell)...");
+          const cleanSubject = finalTitle.replace(/["'“”]/g, "").trim();
+          const imagePrompt = `Editorial visual artwork depicting the theme of ${cleanSubject}, modern minimalist digital illustration, vibrant colors, clean composition, high quality`;
 
-        if (imageBlob && imageBlob.size > 0) {
-          const formData = new FormData();
-          const fileName = `ai-generated-${Date.now()}.png`;
-          const file = new File([imageBlob], fileName, { type: 'image/png' });
-          formData.append('file', file);
-
-          const uploadResponse = await fetch('/api/upload/featured-image', {
-            method: 'POST',
-            body: formData,
+          const rawBlob = await sumoPodAI.generateImage(imagePrompt, {
+            steps: 4,
+            noText: true,
           });
 
-          if (uploadResponse.ok) {
-            const uploadData = await uploadResponse.json();
-            if (uploadData.success && uploadData.url) {
-              featuredImageUrl = uploadData.url;
-              toast.success("Gambar unggulan berhasil digenerasi!");
+          if (rawBlob && rawBlob.size > 0) {
+            // Crop image to standard 16:9 banner ratio (1280x720)
+            const imageBlob = await cropBlobToAspectRatio(
+              rawBlob,
+              { w: 16, h: 9 },
+              1280
+            );
+
+            const formData = new FormData();
+            const ext = imageBlob.type === "image/png" ? "png" : "jpg";
+            const fileName = `flux-${Date.now()}.${ext}`;
+            const file = new File([imageBlob], fileName, {
+              type: imageBlob.type || "image/jpeg",
+            });
+            formData.append("file", file);
+
+            const uploadResponse = await fetch("/api/upload/featured-image", {
+              method: "POST",
+              body: formData,
+            });
+
+            if (uploadResponse.ok) {
+              const uploadData = await uploadResponse.json();
+              if (uploadData.success && uploadData.url) {
+                featuredImageUrl = uploadData.url;
+                toast.success("Gambar unggulan berhasil dibuat");
+              }
             }
           }
+        } catch (imgError) {
+          console.error("Failed to generate featured image:", imgError);
+          toast.error(
+            "Artikel selesai dibuat, namun pembuatan gambar otomatis gagal. Anda dapat mengunggah gambar secara manual."
+          );
         }
-      } catch (imgError) {
-        console.error("Failed to generate featured image:", imgError);
-        toast.error("Gagal generate gambar secara otomatis. Anda bisa menggenerasinya nanti secara manual.");
       }
 
       onGenerated({
         title: finalTitle,
         content: finalContent,
         excerpt: finalExcerpt,
-        featuredImage: featuredImageUrl,
+        featuredImage: featuredImageUrl || undefined,
       });
 
-      toast.success("Artikel berhasil di-generate!");
+      toast.success("Draf artikel berhasil dibuat dengan SumoPod AI (GLM Flash)");
       setIsOpen(false);
       resetForm();
     } catch (error) {
       console.error("Generation error:", error);
       toast.error(
-        error instanceof Error ? error.message : "Gagal generate artikel"
+        error instanceof Error ? error.message : "Gagal membuat artikel dengan AI"
       );
     } finally {
       setIsGenerating(false);
@@ -189,7 +236,7 @@ export function AIGenerateDialog({ children, onGenerated }: AIGenerateDialogProp
       keywords: [],
       targetAudience: "developers",
       language: "id",
-      model: "gemini-3.5-flash",
+      model: DEFAULT_BLOG_AI_MODEL,
     });
     setKeywordInput("");
     setStreamedContent("");
@@ -200,47 +247,56 @@ export function AIGenerateDialog({ children, onGenerated }: AIGenerateDialogProp
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
         {children || (
-          <Button variant="outline" className="gap-2">
-            <Sparkles className="h-4 w-4" />
-            Gemini AI Generate
+          <Button type="button" variant="outline" className="gap-2">
+            <Sparkles aria-hidden="true" className="h-4 w-4" />
+            <span>Bantu Draf AI</span>
           </Button>
         )}
       </DialogTrigger>
 
-      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto border-[#dfdfe0] bg-white text-[#19191b] rounded-[24px]">
         <DialogHeader>
-          <DialogTitle className="flex items-center gap-2">
-            <Sparkles className="h-5 w-5 text-purple-500" />
-            Generate Artikel dengan Gemini AI
+          <DialogTitle className="flex items-center justify-between gap-2 text-[#002253] text-xl font-extrabold">
+            <span className="inline-flex items-center gap-2">
+              <Sparkles aria-hidden="true" className="h-5 w-5 text-[#0540ad]" />
+              <span>Buat Draf Artikel dengan AI</span>
+            </span>
+            <span className="rounded-full border border-[#d0e6fe] bg-[#e8eefc] px-3 py-1 text-[11px] font-bold uppercase tracking-[0.5px] text-[#0540ad]">
+              SumoPod · GLM Flash
+            </span>
           </DialogTitle>
         </DialogHeader>
 
-        <div className="space-y-4 py-4">
+        <div className="space-y-4 py-3">
           {/* Topic */}
-          <div className="space-y-2">
-            <Label htmlFor="topic">
-              Topik Artikel <span className="text-red-500">*</span>
+          <div className="space-y-1.5">
+            <Label htmlFor="ai-topic" className="text-[#002253] font-semibold">
+              Topik atau Judul Artikel <span className="text-red-500">*</span>
             </Label>
             <div className="flex gap-2">
               <Input
-                id="topic"
-                placeholder="Contoh: React Hooks untuk Pemula"
+                id="ai-topic"
+                name="topic"
+                placeholder="Contoh: Arsitektur Next.js App Router untuk Aplikasi Skala Besar"
                 value={options.topic}
                 onChange={(e) =>
                   setOptions({ ...options, topic: e.target.value })
                 }
               />
               <Button
+                type="button"
                 variant="outline"
                 size="icon"
                 onClick={handleGenerateTitles}
-                disabled={isGeneratingTitles || !options.topic}
-                title="Generate title suggestions"
+                disabled={isGeneratingTitles || !options.topic?.trim()}
+                title="Buat saran judul otomatis"
+                aria-label="Buat saran judul otomatis"
+                className="flex-shrink-0 border-[#dfdfe0] text-[#002253] hover:bg-[#e8eefc]"
               >
                 {isGeneratingTitles ? (
-                  <Loader2 className="h-4 w-4 animate-spin" />
+                  <Loader2 aria-hidden="true" className="h-4 w-4 animate-spin" />
                 ) : (
-                  <RefreshCw className="h-4 w-4" />
+                  <RefreshCw aria-hidden="true" className="h-4 w-4" />
                 )}
               </Button>
             </div>
@@ -248,14 +304,17 @@ export function AIGenerateDialog({ children, onGenerated }: AIGenerateDialogProp
 
           {/* Title Suggestions */}
           {titleSuggestions.length > 0 && (
-            <div className="space-y-2">
-              <Label>Saran Judul:</Label>
-              <div className="space-y-1">
+            <div className="space-y-1.5">
+              <Label className="text-[#002253] font-semibold">
+                Pilih Saran Judul:
+              </Label>
+              <div className="space-y-1.5">
                 {titleSuggestions.map((title, index) => (
                   <button
                     key={index}
+                    type="button"
                     onClick={() => setOptions({ ...options, topic: title })}
-                    className="w-full text-left px-3 py-2 text-sm bg-slate-50 dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 rounded transition-colors"
+                    className="w-full text-left px-3.5 py-2 text-sm font-medium text-[#002253] bg-[#f8faff] border border-[#dfdfe0] hover:bg-[#e8eefc] rounded-xl transition-colors cursor-pointer"
                   >
                     {title}
                   </button>
@@ -264,87 +323,147 @@ export function AIGenerateDialog({ children, onGenerated }: AIGenerateDialogProp
             </div>
           )}
 
-          {/* Target Audience */}
-          <div className="space-y-2">
-            <Label htmlFor="audience">Target Audience</Label>
-            <Input
-              id="audience"
-              placeholder="Contoh: developers, pemula, business owners"
-              value={options.targetAudience}
-              onChange={(e) =>
-                setOptions({ ...options, targetAudience: e.target.value })
-              }
-            />
+          {/* Target Audience & Language */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className="space-y-1.5">
+              <Label
+                htmlFor="ai-audience"
+                className="text-[#002253] font-semibold"
+              >
+                Target Pembaca
+              </Label>
+              <Input
+                id="ai-audience"
+                name="targetAudience"
+                placeholder="Contoh: developers, UMKM, pebisnis"
+                value={options.targetAudience}
+                onChange={(e) =>
+                  setOptions({ ...options, targetAudience: e.target.value })
+                }
+              />
+            </div>
+
+            <div className="space-y-1.5">
+              <Label
+                htmlFor="ai-language"
+                className="text-[#002253] font-semibold"
+              >
+                Bahasa Artikel
+              </Label>
+              <select
+                id="ai-language"
+                name="language"
+                value={options.language}
+                onChange={(e) =>
+                  setOptions({
+                    ...options,
+                    language: e.target.value as "id" | "en",
+                  })
+                }
+                className="w-full h-10 rounded-md border border-[#dfdfe0] bg-white px-3 py-2 text-sm text-[#19191b] focus:outline-none focus:ring-2 focus:ring-[#0540ad]/30"
+              >
+                <option value="id">Bahasa Indonesia</option>
+                <option value="en">English</option>
+              </select>
+            </div>
           </div>
 
-          {/* Tone */}
-          <div className="space-y-2">
-            <Label htmlFor="tone">Tone</Label>
-            <select
-              id="tone"
-              value={options.tone}
-              onChange={(e) =>
-                setOptions({
-                  ...options,
-                  tone: e.target.value as "professional" | "casual" | "technical" | "friendly",
-                })
-              }
-              className="w-full rounded-md border border-slate-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-slate-400"
-            >
-              <option value="professional">Professional</option>
-              <option value="casual">Casual</option>
-              <option value="technical">Technical</option>
-              <option value="friendly">Friendly</option>
-            </select>
-          </div>
+          {/* Tone & Length */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className="space-y-1.5">
+              <Label htmlFor="ai-tone" className="text-[#002253] font-semibold">
+                Gaya Bahasa (Tone)
+              </Label>
+              <select
+                id="ai-tone"
+                name="tone"
+                value={options.tone}
+                onChange={(e) =>
+                  setOptions({
+                    ...options,
+                    tone: e.target.value as
+                      | "professional"
+                      | "casual"
+                      | "technical"
+                      | "friendly",
+                  })
+                }
+                className="w-full h-10 rounded-md border border-[#dfdfe0] bg-white px-3 py-2 text-sm text-[#19191b] focus:outline-none focus:ring-2 focus:ring-[#0540ad]/30"
+              >
+                <option value="professional">Profesional</option>
+                <option value="technical">Teknis & Mendalam</option>
+                <option value="friendly">Ramah & Edukatif</option>
+                <option value="casual">Santai</option>
+              </select>
+            </div>
 
-          {/* Length */}
-          <div className="space-y-2">
-            <Label htmlFor="length">Panjang Artikel</Label>
-            <select
-              id="length"
-              value={options.length}
-              onChange={(e) =>
-                setOptions({
-                  ...options,
-                  length: e.target.value as "short" | "medium" | "long",
-                })
-              }
-              className="w-full rounded-md border border-slate-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-slate-400"
-            >
-              <option value="short">Short (500-800 kata)</option>
-              <option value="medium">Medium (1000-1500 kata)</option>
-              <option value="long">Long (2000-3000 kata)</option>
-            </select>
+            <div className="space-y-1.5">
+              <Label
+                htmlFor="ai-length"
+                className="text-[#002253] font-semibold"
+              >
+                Panjang Artikel
+              </Label>
+              <select
+                id="ai-length"
+                name="length"
+                value={options.length}
+                onChange={(e) =>
+                  setOptions({
+                    ...options,
+                    length: e.target.value as "short" | "medium" | "long",
+                  })
+                }
+                className="w-full h-10 rounded-md border border-[#dfdfe0] bg-white px-3 py-2 text-sm text-[#19191b] focus:outline-none focus:ring-2 focus:ring-[#0540ad]/30"
+              >
+                <option value="short">Ringkas (500–800 kata)</option>
+                <option value="medium">Standar (1000–1500 kata)</option>
+                <option value="long">Mendalam (2000–3000 kata)</option>
+              </select>
+            </div>
           </div>
 
           {/* Keywords */}
-          <div className="space-y-2">
-            <Label>Keywords (Opsional)</Label>
+          <div className="space-y-1.5">
+            <Label
+              htmlFor="ai-keyword-input"
+              className="text-[#002253] font-semibold"
+            >
+              Kata Kunci SEO (Opsional)
+            </Label>
             <div className="flex gap-2">
               <Input
-                placeholder="Tambahkan keyword"
+                id="ai-keyword-input"
+                name="keywordInput"
+                placeholder="Ketik kata kunci lalu tekan Enter"
                 value={keywordInput}
                 onChange={(e) => setKeywordInput(e.target.value)}
-                onKeyPress={(e) => e.key === "Enter" && handleAddKeyword()}
+                onKeyDown={handleKeywordKeyDown}
               />
-              <Button variant="outline" onClick={handleAddKeyword}>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={handleAddKeyword}
+                className="border-[#dfdfe0] text-[#002253] hover:bg-[#e8eefc]"
+              >
                 Tambah
               </Button>
             </div>
             {options.keywords && options.keywords.length > 0 && (
-              <div className="flex flex-wrap gap-2 mt-2">
+              <div className="flex flex-wrap gap-2 pt-1.5">
                 {options.keywords.map((keyword, index) => (
                   <span
                     key={index}
-                    className="inline-flex items-center gap-1 px-3 py-1 bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 rounded-full text-sm"
+                    className="inline-flex items-center gap-1.5 px-3 py-1 bg-[#e8eefc] text-[#002253] border border-[#d0e6fe] rounded-full text-xs font-semibold"
                   >
-                    {keyword}
+                    <span>{keyword}</span>
                     <button
+                      type="button"
                       onClick={() => handleRemoveKeyword(index)}
-                      className="hover:text-red-600"
+                      aria-label={`Hapus kata kunci ${keyword}`}
+                      className="hover:text-red-600 cursor-pointer"
                     >
-                      ×
+                      <X aria-hidden="true" className="h-3.5 w-3.5" />
                     </button>
                   </span>
                 ))}
@@ -352,67 +471,80 @@ export function AIGenerateDialog({ children, onGenerated }: AIGenerateDialogProp
             )}
           </div>
 
-          {/* Language */}
-          <div className="space-y-2">
-            <Label htmlFor="language">Bahasa</Label>
-            <select
-              id="language"
-              value={options.language}
-              onChange={(e) =>
-                setOptions({ ...options, language: e.target.value as "id" | "en" })
-              }
-              className="w-full rounded-md border border-slate-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-slate-400"
+          {/* Streaming & Optional Image Checkboxes */}
+          <div className="rounded-2xl border border-[#dfdfe0] bg-[#f8faff] p-3.5 space-y-2.5">
+            <label
+              htmlFor="ai-streaming"
+              className="flex items-center gap-2.5 cursor-pointer text-sm text-[#19191b]"
             >
-              <option value="id">Indonesia</option>
-              <option value="en">English</option>
-            </select>
-          </div>
+              <input
+                type="checkbox"
+                id="ai-streaming"
+                checked={useStreaming}
+                onChange={(e) => setUseStreaming(e.target.checked)}
+                className="h-4 w-4 rounded accent-[#0540ad]"
+              />
+              <span>
+                Tampilkan proses penulisan secara langsung (streaming real-time)
+              </span>
+            </label>
 
-          {/* Streaming Option */}
-          <div className="flex items-center gap-2">
-            <input
-              type="checkbox"
-              id="streaming"
-              checked={useStreaming}
-              onChange={(e) => setUseStreaming(e.target.checked)}
-              className="rounded"
-            />
-            <Label htmlFor="streaming" className="cursor-pointer">
-              Gunakan streaming (lihat proses generate secara real-time)
-            </Label>
+            <label
+              htmlFor="ai-auto-image"
+              className="flex items-center gap-2.5 cursor-pointer text-sm text-[#66666b]"
+            >
+              <input
+                type="checkbox"
+                id="ai-auto-image"
+                checked={autoGenerateImage}
+                onChange={(e) => setAutoGenerateImage(e.target.checked)}
+                className="h-4 w-4 rounded accent-[#0540ad]"
+              />
+              <span>
+                Buat juga gambar unggulan otomatis (Cloudflare Workers AI · FLUX.1 Schnell)
+              </span>
+            </label>
           </div>
 
           {/* Streamed Content Preview */}
           {useStreaming && streamedContent && (
-            <div className="space-y-2">
-              <Label>Preview:</Label>
+            <div className="space-y-1.5">
+              <Label className="text-[#002253] font-semibold">
+                Pratinjau Aliran Konten:
+              </Label>
               <Textarea
                 value={streamedContent}
                 readOnly
-                rows={10}
-                className="font-mono text-xs"
+                rows={8}
+                className="font-mono text-xs bg-[#f8faff] border-[#dfdfe0]"
               />
             </div>
           )}
         </div>
 
-        <div className="flex justify-end gap-2">
+        <div className="flex justify-end gap-2.5 pt-2">
           <Button
+            type="button"
             variant="outline"
             onClick={() => {
               setIsOpen(false);
               resetForm();
             }}
             disabled={isGenerating}
+            className="rounded-full border-[#dfdfe0] px-5"
           >
             Batal
           </Button>
           <Button
+            type="button"
             onClick={handleGenerate}
-            disabled={isGenerating || !options.topic}
+            disabled={isGenerating || !options.topic?.trim()}
+            className="rounded-full bg-[#0540ad] hover:bg-[#002253] text-white font-semibold px-6"
           >
-            {isGenerating && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
-            {isGenerating ? "Generating..." : "Generate Artikel"}
+            {isGenerating && (
+              <Loader2 aria-hidden="true" className="h-4 w-4 mr-2 animate-spin" />
+            )}
+            {isGenerating ? "Menyusun Artikel..." : "Buat Artikel"}
           </Button>
         </div>
       </DialogContent>

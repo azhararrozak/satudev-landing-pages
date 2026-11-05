@@ -1,9 +1,9 @@
 /**
  * Blog Article Generator
- * Main service untuk generate artikel menggunakan Puter AI
+ * Service utama untuk membuat artikel blog menggunakan SumoPod AI (GLM Flash)
  */
 
-import { geminiAI } from './gemini-client';
+import { sumoPodAI } from "./gemini-client";
 import {
   generateFullArticlePrompt,
   generateTitlePrompt,
@@ -12,7 +12,9 @@ import {
   generateExpandPrompt,
   getSystemPrompt,
   type BlogPromptParams,
-} from './prompts/blog-prompts';
+} from "./prompts/blog-prompts";
+
+export const DEFAULT_BLOG_AI_MODEL = "glm-4-flash";
 
 export interface GeneratedArticle {
   title: string;
@@ -25,180 +27,255 @@ export interface GenerationOptions extends BlogPromptParams {
   useStreaming?: boolean;
 }
 
+const LENGTH_MAX_TOKENS: Record<
+  NonNullable<BlogPromptParams["length"]>,
+  number
+> = {
+  short: 2048,
+  medium: 4096,
+  long: 6144,
+};
+
 /**
- * Generate artikel blog lengkap
+ * Generate artikel blog lengkap menggunakan SumoPod AI (GLM Flash)
  */
 export async function generateBlogArticle(
   options: GenerationOptions
 ): Promise<GeneratedArticle> {
-  const { topic, language = 'id', model = 'gemini-3.5-flash', ...promptParams } = options;
+  const {
+    topic,
+    language = "id",
+    length = "medium",
+    model = DEFAULT_BLOG_AI_MODEL,
+    ...promptParams
+  } = options;
 
   if (!topic) {
-    throw new Error('Topic is required for article generation');
+    throw new Error("Topic is required for article generation");
   }
 
   try {
-    // Generate full article
     const systemPrompt = getSystemPrompt(language);
     const articlePrompt = generateFullArticlePrompt({
       topic,
       language,
+      length,
       ...promptParams,
     });
 
-    const fullPrompt = `${systemPrompt}\n\n${articlePrompt}`;
+    const response = await sumoPodAI.chat(articlePrompt, {
+      model,
+      systemPrompt,
+      max_tokens: LENGTH_MAX_TOKENS[length],
+      temperature: 0.7,
+    });
 
-    const response = await geminiAI.chat(fullPrompt, { model });
-
-    // Parse response untuk extract title, content, dan excerpt
-    const parsed = parseGeneratedArticle(response);
-
-    return parsed;
+    return parseGeneratedArticle(response, topic);
   } catch (error) {
-    console.error('Error generating blog article:', error);
+    console.error("Error generating blog article:", error);
     throw error;
   }
 }
 
 /**
- * Generate artikel dengan streaming
+ * Generate artikel blog secara real-time (streaming)
  */
 export async function* generateBlogArticleStream(
   options: GenerationOptions
 ): AsyncGenerator<string> {
-  const { topic, language = 'id', model = 'gemini-3.5-flash', ...promptParams } = options;
+  const {
+    topic,
+    language = "id",
+    length = "medium",
+    model = DEFAULT_BLOG_AI_MODEL,
+    ...promptParams
+  } = options;
 
   if (!topic) {
-    throw new Error('Topic is required for article generation');
+    throw new Error("Topic is required for article generation");
   }
 
   const systemPrompt = getSystemPrompt(language);
   const articlePrompt = generateFullArticlePrompt({
     topic,
     language,
+    length,
     ...promptParams,
   });
 
-  const fullPrompt = `${systemPrompt}\n\n${articlePrompt}`;
-
-  for await (const chunk of geminiAI.chatStream(fullPrompt, { model })) {
+  for await (const chunk of sumoPodAI.chatStream(articlePrompt, {
+    model,
+    systemPrompt,
+    max_tokens: LENGTH_MAX_TOKENS[length],
+    temperature: 0.7,
+  })) {
     yield chunk;
   }
 }
 
 /**
- * Generate hanya title suggestions
+ * Generate saran judul artikel
  */
 export async function generateTitleSuggestions(
   topic: string,
-  language: 'id' | 'en' = 'id',
-  model: string = 'gemini-3.5-flash'
+  language: "id" | "en" = "id",
+  model: string = DEFAULT_BLOG_AI_MODEL
 ): Promise<string[]> {
   const prompt = generateTitlePrompt(topic, language);
-  const response = await geminiAI.chat(prompt, { model });
+  const response = await sumoPodAI.chat(prompt, {
+    model,
+    max_tokens: 500,
+    temperature: 0.8,
+  });
 
-  // Parse response to extract titles
   const titles = response
-    .split('\n')
+    .split("\n")
     .filter((line) => line.trim().match(/^\d+[\.\)]/))
-    .map((line) => line.replace(/^\d+[\.\)]\s*/, '').trim())
+    .map((line) =>
+      line
+        .replace(/^\d+[\.\)]\s*/, "")
+        .replace(/^\*+|\*+$/g, "")
+        .replace(/^["']|["']$/g, "")
+        .trim()
+    )
     .filter((title) => title.length > 0);
 
   return titles;
 }
 
 /**
- * Generate excerpt dari content
+ * Generate ringkasan singkat (excerpt) dari konten
  */
 export async function generateExcerpt(
   title: string,
   content: string,
-  language: 'id' | 'en' = 'id',
-  model: string = 'gemini-3.5-flash'
+  language: "id" | "en" = "id",
+  model: string = DEFAULT_BLOG_AI_MODEL
 ): Promise<string> {
   const prompt = generateExcerptPrompt(title, content, language);
-  const response = await geminiAI.chat(prompt, { model });
+  const response = await sumoPodAI.chat(prompt, {
+    model,
+    max_tokens: 250,
+    temperature: 0.6,
+  });
 
-  // Clean up response
-  return response.trim().replace(/^["']|["']$/g, '');
+  return response.trim().replace(/^["']|["']$/g, "");
 }
 
 /**
- * Improve existing content
+ * Perbaiki kualitas konten yang sudah ada
  */
 export async function improveContent(
   content: string,
-  improvement: 'grammar' | 'seo' | 'engagement' | 'readability',
-  language: 'id' | 'en' = 'id',
-  model: string = 'gemini-3.5-flash'
+  improvement: "grammar" | "seo" | "engagement" | "readability",
+  language: "id" | "en" = "id",
+  model: string = DEFAULT_BLOG_AI_MODEL
 ): Promise<string> {
   const prompt = generateImprovePrompt(content, improvement, language);
-  return await geminiAI.chat(prompt, { model });
+  const raw = await sumoPodAI.chat(prompt, {
+    model,
+    systemPrompt: getSystemPrompt(language),
+    max_tokens: 4096,
+    temperature: 0.6,
+  });
+  return stripMarkdownCodeFences(raw);
 }
 
 /**
- * Expand a specific section
+ * Kembangkan bagian tertentu pada artikel
  */
 export async function expandSection(
   section: string,
   context: string,
-  language: 'id' | 'en' = 'id',
-  model: string = 'gemini-3.5-flash'
+  language: "id" | "en" = "id",
+  model: string = DEFAULT_BLOG_AI_MODEL
 ): Promise<string> {
   const prompt = generateExpandPrompt(section, context, language);
-  return await geminiAI.chat(prompt, { model });
+  const raw = await sumoPodAI.chat(prompt, {
+    model,
+    systemPrompt: getSystemPrompt(language),
+    max_tokens: 2048,
+    temperature: 0.7,
+  });
+  return stripMarkdownCodeFences(raw);
+}
+
+function stripMarkdownCodeFences(input: string): string {
+  return input
+    .trim()
+    .replace(/^```(?:html|xml|markdown)?\s*\n?/i, "")
+    .replace(/\n?```\s*$/i, "")
+    .trim();
+}
+
+function stripHtmlTags(input: string): string {
+  return input
+    .replace(/<[^>]+>/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
 }
 
 /**
- * Parse generated article response
+ * Parse output artikel HTML menjadi title, content, dan excerpt bersih
  */
-function parseGeneratedArticle(response: string): GeneratedArticle {
-  // Try to extract title from <h1> tag or first line
-  let title = '';
-  let content = response;
-  let excerpt = '';
-
-  // Extract title from H1 tag
-  const h1Match = response.match(/<h1[^>]*>(.*?)<\/h1>/i);
-  if (h1Match) {
-    title = h1Match[1].trim();
-    content = response.replace(h1Match[0], '').trim();
-  } else {
-    // If no H1, use first line
-    const lines = response.split('\n').filter((line) => line.trim());
-    if (lines.length > 0) {
-      title = lines[0].replace(/^#+\s*/, '').trim();
-      content = lines.slice(1).join('\n').trim();
-    }
-  }
-
-  // Extract excerpt from meta description or first paragraph
-  const metaMatch = response.match(/meta description[:\s]+([^\n]+)/i);
-  if (metaMatch) {
-    excerpt = metaMatch[1].trim();
-  } else {
-    // Use first paragraph
-    const pMatch = content.match(/<p[^>]*>(.*?)<\/p>/i);
-    if (pMatch) {
-      excerpt = pMatch[1].replace(/<[^>]+>/g, '').substring(0, 160);
-    }
-  }
-
-  // Clean up content
-  content = content
-    .replace(/meta description[:\s]+[^\n]+/gi, '')
+export function parseGeneratedArticle(
+  rawResponse: string,
+  fallbackTitle = "Untitled Article"
+): GeneratedArticle {
+  const fencedResponse = stripMarkdownCodeFences(rawResponse);
+  // Some models wrap the article in a full HTML document; keep only <body> content
+  const bodyMatch = fencedResponse.match(/<body[^>]*>([\s\S]*?)<\/body>/i);
+  const cleanedResponse = (bodyMatch ? bodyMatch[1] : fencedResponse)
+    .replace(/<!DOCTYPE[^>]*>/gi, "")
+    .replace(/<\/?(?:html|head|body|article)[^>]*>/gi, "")
+    .replace(/<(?:meta|title|link)[^>]*>(?:[^<]*<\/title>)?/gi, "")
     .trim();
+  let title = "";
+  let content = cleanedResponse;
+  let excerpt = "";
+
+  // Extract title from <h1>...</h1> if present
+  const h1Match = cleanedResponse.match(/<h1[^>]*>([\s\S]*?)<\/h1>/i);
+  if (h1Match) {
+    title = stripHtmlTags(h1Match[1]);
+    content = cleanedResponse.replace(h1Match[0], "").trim();
+  } else {
+    const lines = cleanedResponse.split("\n").filter((line) => line.trim());
+    if (lines.length > 0 && !lines[0].trim().startsWith("<p")) {
+      title = stripHtmlTags(lines[0].replace(/^#+\s*/, ""));
+      content = lines.slice(1).join("\n").trim();
+    }
+  }
+
+  // Extract Meta description if model emitted one
+  const metaMatch = content.match(
+    /(?:<p[^>]*>\s*)?(?:<strong>)?meta\s*description(?:\s*<\/strong>)?\s*[:\-]\s*([\s\S]*?)(?:<\/p>|\n|$)/i
+  );
+  if (metaMatch) {
+    excerpt = stripHtmlTags(metaMatch[1]).substring(0, 160);
+    content = content.replace(metaMatch[0], "").trim();
+  }
+
+  // Fallback excerpt from the first <p> tag or plain text
+  if (!excerpt) {
+    const pMatch = content.match(/<p[^>]*>([\s\S]*?)<\/p>/i);
+    if (pMatch) {
+      excerpt = stripHtmlTags(pMatch[1]).substring(0, 160);
+    } else {
+      excerpt = stripHtmlTags(content).substring(0, 160);
+    }
+  }
 
   return {
-    title: title || 'Untitled Article',
-    content: content || response,
-    excerpt: excerpt || content.substring(0, 160),
+    title: title || fallbackTitle,
+    content: content || cleanedResponse,
+    excerpt,
   };
 }
 
 /**
- * Check if Puter AI is available
+ * Check if AI service is available
  */
 export function isAIAvailable(): boolean {
-  return geminiAI.isAvailable();
+  return sumoPodAI.isAvailable();
 }

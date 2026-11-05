@@ -1,10 +1,17 @@
 import { headers } from "next/headers";
 import { auth } from "@/lib/backend/auth";
-import { GoogleGenAI } from "@google/genai";
+import type OpenAI from "openai";
+import {
+  buildChatMessages,
+  getReasoningParams,
+  getSumoPodClient,
+  resolveSumoPodModel,
+  SumoPodConfigError,
+} from "@/lib/ai/sumopod";
 
 export async function POST(request: Request) {
   try {
-    // 1. Verify user session for security
+    // 1. Verify user session
     const session = await auth.api.getSession({
       headers: await headers(),
     });
@@ -15,60 +22,68 @@ export async function POST(request: Request) {
 
     // 2. Parse request body
     const body = await request.json();
-    const { prompt, options = {} } = body;
+    const { prompt, options = {} } = body as {
+      prompt?: string;
+      options?: {
+        model?: string;
+        systemPrompt?: string;
+        max_tokens?: number;
+        temperature?: number;
+      };
+    };
 
-    if (!prompt) {
+    if (!prompt || !prompt.trim()) {
       return new Response("Prompt is required", { status: 400 });
     }
 
-    // 3. Initialize GoogleGenAI client
-    if (!process.env.GEMINI_API_KEY) {
-      console.error("GEMINI_API_KEY is not defined in environment variables");
-      return new Response("AI Service configuration error", { status: 500 });
-    }
+    // 3. Initialize SumoPod OpenAI-compatible client & resolve GLM Flash model
+    const openai = getSumoPodClient();
+    const model = await resolveSumoPodModel(openai, options.model);
+    const messages = buildChatMessages(prompt, options.systemPrompt);
 
-    const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
-    
-    // Map model from request options or default to gemini-3.5-flash
-    let model = options.model || "gemini-3.5-flash";
-    if (model.includes("gpt-5-nano") || model.includes("gpt-") || model.includes("gemini-2.5-flash-lite") || model.includes("gemini-2.0-flash")) {
-      model = "gemini-3.5-flash";
-    }
-
-    // 4. Generate stream
-    const responseStream = await ai.models.generateContentStream({
+    // 4. Create streaming chat completion
+    const completionStream = await openai.chat.completions.create({
       model,
-      contents: prompt,
-      config: options.max_tokens ? { maxOutputTokens: options.max_tokens } : undefined,
-    });
+      messages,
+      max_tokens: options.max_tokens ?? 4096,
+      temperature: options.temperature ?? 0.7,
+      stream: true,
+      ...getReasoningParams(),
+    } as OpenAI.Chat.Completions.ChatCompletionCreateParamsStreaming);
 
     const encoder = new TextEncoder();
     const stream = new ReadableStream({
       async start(controller) {
         try {
-          for await (const chunk of responseStream) {
-            if (chunk.text) {
-              controller.enqueue(encoder.encode(chunk.text));
+          for await (const chunk of completionStream) {
+            const delta = chunk.choices[0]?.delta?.content;
+            if (delta) {
+              controller.enqueue(encoder.encode(delta));
             }
           }
-        } catch (e) {
-          console.error("Streaming error:", e);
-          controller.error(e);
+        } catch (streamError) {
+          console.error("SumoPod AI streaming error:", streamError);
+          controller.error(streamError);
         } finally {
           controller.close();
         }
-      }
+      },
     });
 
     return new Response(stream, {
       headers: {
-        "Content-Type": "text/event-stream; charset=utf-8",
+        "Content-Type": "text/plain; charset=utf-8",
         "Cache-Control": "no-cache, no-transform",
-        "Connection": "keep-alive",
+        Connection: "keep-alive",
       },
     });
   } catch (error) {
-    console.error("Error in AI Chat Stream API Route:", error);
+    console.error("Error in SumoPod AI Chat Stream API Route:", error);
+
+    if (error instanceof SumoPodConfigError) {
+      return new Response(error.message, { status: 503 });
+    }
+
     return new Response(
       error instanceof Error ? error.message : "Internal Server Error",
       { status: 500 }

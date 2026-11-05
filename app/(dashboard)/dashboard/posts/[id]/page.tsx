@@ -8,7 +8,8 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { TiptapEditor } from "@/components/ui/tiptap-editor";
 import { TagSelector } from "@/components/ui/tag-selector";
-import { Loader2, ArrowLeft } from "lucide-react";
+import { AIGenerateDialog } from "@/components/ai/AIGenerateDialog";
+import { Loader2, ArrowLeft, Sparkles } from "lucide-react";
 import { toast } from "sonner";
 
 type Category = {
@@ -155,23 +156,48 @@ export default function EditPostPage({ params }: PageProps) {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center gap-3.5 rounded-[24px] border border-[#dfdfe0] bg-white p-6 sm:p-8">
-        <button
-          type="button"
-          onClick={() => router.back()}
-          aria-label="Kembali"
-          className="flex h-9 w-9 items-center justify-center rounded-full border border-[#dfdfe0] bg-white text-[#002253] transition hover:bg-[#e8eefc]"
-        >
-          <ArrowLeft aria-hidden="true" className="h-4 w-4" />
-        </button>
-        <div>
-          <h1 className="text-[24px] sm:text-[28px] font-extrabold tracking-[-0.5px] leading-tight text-[#002253]">
-            Sunting Artikel
-          </h1>
-          <p className="mt-0.5 text-sm font-medium text-[#66666b]">
-            Perbarui konten dan status publikasi artikel
-          </p>
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 rounded-[24px] border border-[#dfdfe0] bg-white p-6 sm:p-8">
+        <div className="flex items-center gap-3.5">
+          <button
+            type="button"
+            onClick={() => router.back()}
+            aria-label="Kembali"
+            className="flex h-9 w-9 items-center justify-center rounded-full border border-[#dfdfe0] bg-white text-[#002253] transition hover:bg-[#e8eefc]"
+          >
+            <ArrowLeft aria-hidden="true" className="h-4 w-4" />
+          </button>
+          <div>
+            <h1 className="text-[24px] sm:text-[28px] font-extrabold tracking-[-0.5px] leading-tight text-[#002253]">
+              Sunting Artikel
+            </h1>
+            <p className="mt-0.5 text-sm font-medium text-[#66666b]">
+              Perbarui konten dan status publikasi artikel
+            </p>
+          </div>
         </div>
+
+        <AIGenerateDialog
+          onGenerated={(data) => {
+            setFormData({
+              ...formData,
+              title: data.title,
+              content: data.content,
+              excerpt: data.excerpt || formData.excerpt,
+              featuredImage: data.featuredImage || formData.featuredImage,
+            });
+            toast.success(
+              "Draf artikel diperbarui dengan AI. Silakan tinjau sebelum menyimpan."
+            );
+          }}
+        >
+          <button
+            type="button"
+            className="inline-flex h-10 items-center gap-2 rounded-[24px] border border-[#dfdfe0] bg-[#e8eefc] px-5 text-sm font-bold text-[#002253] transition hover:bg-[#d0e6fe]"
+          >
+            <Sparkles aria-hidden="true" className="h-4 w-4 text-[#0540ad]" />
+            <span>Bantu Draf AI</span>
+          </button>
+        </AIGenerateDialog>
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-6 rounded-[24px] border border-[#dfdfe0] bg-white p-6 sm:p-8">
