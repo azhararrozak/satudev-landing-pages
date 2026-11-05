@@ -36,6 +36,8 @@ export function getSumoPodClient(): OpenAI {
   return new OpenAI({
     apiKey,
     baseURL,
+    timeout: 50_000, // 50s timeout to abort cleanly before Vercel 60s hard limit
+    maxRetries: 1,
   });
 }
 
@@ -84,10 +86,21 @@ export async function resolveSumoPodModel(
   requestedModel?: string
 ): Promise<string> {
   const envModel = process.env.SUMOPOD_MODEL?.trim();
-  const preferred = !isLegacyOrDefaultAlias(requestedModel)
-    ? requestedModel!.trim()
-    : envModel || SUMOPOD_DEFAULT_MODEL;
+  if (envModel) {
+    return envModel;
+  }
 
+  // If a specific, non-legacy model was explicitly requested, use it directly (fast path)
+  if (requestedModel && !isLegacyOrDefaultAlias(requestedModel)) {
+    return requestedModel.trim();
+  }
+
+  // If auto-discovery is explicitly disabled or not requested, use default directly without network overhead
+  if (process.env.SUMOPOD_AUTO_DISCOVER !== "true") {
+    return SUMOPOD_DEFAULT_MODEL;
+  }
+
+  const preferred = SUMOPOD_DEFAULT_MODEL;
   const availableIds = await fetchAvailableModelIds(client);
   if (availableIds.length === 0) {
     return preferred;

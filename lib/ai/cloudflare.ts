@@ -133,6 +133,7 @@ export async function generateFluxImage(
       "Content-Type": "application/json",
     },
     body: JSON.stringify(requestBody),
+    signal: AbortSignal.timeout(50_000),
   });
 
   const contentType = response.headers.get("content-type") || "";

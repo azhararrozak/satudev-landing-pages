@@ -6,6 +6,9 @@ import {
   CloudflareWorkersAIConfigError,
 } from "@/lib/ai/cloudflare";
 
+export const maxDuration = 60;
+export const dynamic = "force-dynamic";
+
 export async function POST(request: Request) {
   try {
     // 1. Verify user session

@@ -11,6 +11,9 @@ import {
   SumoPodConfigError,
 } from "@/lib/ai/sumopod";
 
+export const maxDuration = 60;
+export const dynamic = "force-dynamic";
+
 export async function POST(request: Request) {
   try {
     // 1. Verify user session
