@@ -5,3 +5,5 @@ export * from './comments-schema';
 export * from './tags-schema';
 export * from './projects-schema';
 export * from './media-schema';
+export * from './products-schema';
+

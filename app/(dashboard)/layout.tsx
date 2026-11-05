@@ -13,6 +13,7 @@ import {
   LogOut,
   Menu,
   MessageSquare,
+  Package,
   Tags,
   UserCircle,
   Users,
@@ -32,6 +33,7 @@ interface NavItem {
 
 const primaryNav: NavItem[] = [
   { href: "/dashboard", label: "Ringkasan", icon: LayoutGrid },
+  { href: "/dashboard/products", label: "Produk", icon: Package },
   { href: "/dashboard/posts", label: "Artikel", icon: FileText },
   { href: "/dashboard/projects", label: "Proyek", icon: FolderKanban },
   { href: "/dashboard/comments", label: "Komentar", icon: MessageSquare },

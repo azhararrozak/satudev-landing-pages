@@ -30,6 +30,7 @@ export async function GET(
         "Content-Type": media.mimeType,
         "Content-Length": media.size.toString(),
         "Cache-Control": "public, max-age=31536000, immutable",
+        "Access-Control-Allow-Origin": "*",
       },
     });
   } catch (error) {
@@ -55,6 +56,7 @@ export async function HEAD(
         "Content-Type": media.mimeType,
         "Content-Length": media.size.toString(),
         "Cache-Control": "public, max-age=31536000, immutable",
+        "Access-Control-Allow-Origin": "*",
       },
     });
   } catch {
