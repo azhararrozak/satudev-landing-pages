@@ -4,3 +4,4 @@ export * from './posts-schema';
 export * from './comments-schema';
 export * from './tags-schema';
 export * from './projects-schema';
+export * from './media-schema';
